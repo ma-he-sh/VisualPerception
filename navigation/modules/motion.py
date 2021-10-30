@@ -36,7 +36,7 @@ class Motion():
     right_fw= 1
     right_bw= 0
 
-    def __init__(self):
+    def __init__(self, config={}):
         pass
 
     def stop(self):

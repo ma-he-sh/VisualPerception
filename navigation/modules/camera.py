@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import threading
+from imutils.video import VideoStream
+import imutils
 from modules.errors import Error
 
 class SrcNotFound(Error):
@@ -31,17 +33,34 @@ class SrcAvailability:
                 cam_list.append( cam_data )
         return cam_list
 
-class Camera:
-    in_width    = 320
-    in_height   = 240
-    framerate   = 20
-    out_width   = 320
-    out_height  = 240
-    video = None
+class FullFrame:
+    def __init__(self, left_img, right_img):
+        self.left_img   = left_img
+        self.right_img  = right_img
+        self.full_frame = self.getFullFrame() 
+    
+    def getFullFrame(self):
+        return np.concatenate( (self.left_img, self.right_img), axis=1 )
 
-    def __init__(self, srcID, configs={} ):
+    def write_to_disk(self):
+        cv2.imwrite( "./full_frame.png", self.full_frame )
+
+class Camera:
+    def __init__(self, srcID, config={} ):
         self.srcID = srcID
-        self.configs = configs
+        self.config = {
+            'in_width'  : 320,
+            'in_height' : 240,
+            'fps'       : 20,
+            'out_width' : 320,
+            'out_height': 240,
+            'angle'     : 0,
+        }
+        self.video = None
+
+        for _key in self.config:
+            if _key in config:
+                self.config[_key] = config[_key]
 
     @staticmethod
     def src_exists( srcID ):
@@ -49,41 +68,35 @@ class Camera:
             cam = cv2.VideoCapture( srcID )
         except Exception:
             raise SrcNotFound('Source not accessible : ' + srcID )
-    
-    def init_camera(self):
-        self.video = cv2.VideoCapture( self.srcID )
-        self.video.set( cv2.CAP_PROP_FRAME_WIDTH, self.in_width )
-        self.video.set( cv2.CAP_PROP_FRAME_HEIGHT, self.in_height )
-        self.video.set( cv2.CAP_PROP_FPS, self.framerate )
 
-    def setup(self):
+    def init_camera(self):
+        self.video = VideoStream( self.srcID ).start() # warm startup
+
+    def start(self):
         print("camera initialize")
         self.init_camera()
-        print(self.video )
 
-    def release(self):
+    def stop(self):
+        print("camera stopping")
         if self.video is not None:
-            self.video.release()
-        cv2.destroyAllWindows()
-    
+            self.video.stop()
+
     def resize(self, image):
-        return cv2.resize( image, ( self.out_width, self.out_height ), interpolation=cv2.INTER_AREA )
+        return imutils.resize( image, width=self.config['out_width'], height=self.config['out_height'] )
+
+    def stabalized(self, image):
+        return imutils.rotate_bound( image, self.config['angle'] )
 
     def get_frame(self):
-        if self.video is not None and self.video.isOpened():
-            ret, image = self.video.read()
-            return ret, image
-        return None, None
-
-    def is_ready(self):
         if self.video is not None:
-            print( self.video.isOpened() )
-            return self.video.isOpened()
-        return False
-    
-    @staticmethod
-    def preview( image, frame_name ):
-        cv2.imshow( frame_name, image )
+            return self.video.read()
+        else:
+            return None
+
+    def write_to_disk(self, image ):
+        if self.video is not None:
+            image_name = "./image_{fileID}_.png".format(fileID=self.srcID)
+            cv2.imwrite( image_name, image )
 
 class CameraThread(threading.Thread):
     def __init__(self, win_name, srcID ):
