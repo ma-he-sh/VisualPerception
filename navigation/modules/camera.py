@@ -6,6 +6,9 @@ from modules.errors import Error
 class SrcNotFound(Error):
     pass
 
+class CameraTimeout(Error):
+    pass
+
 class SrcAvailability:
     def __init__(self, minRange=0, maxRange=10):
         self.minRange = minRange
@@ -29,11 +32,11 @@ class SrcAvailability:
         return cam_list
 
 class Camera:
-    in_width    = 1920
-    in_height   = 1080
+    in_width    = 320
+    in_height   = 240
     framerate   = 20
-    out_width   = 640
-    out_height  = 480
+    out_width   = 320
+    out_height  = 240
     video = None
 
     def __init__(self, srcID, configs={} ):
@@ -54,7 +57,9 @@ class Camera:
         self.video.set( cv2.CAP_PROP_FPS, self.framerate )
 
     def setup(self):
+        print("camera initialize")
         self.init_camera()
+        print(self.video )
 
     def release(self):
         if self.video is not None:
@@ -65,8 +70,16 @@ class Camera:
         return cv2.resize( image, ( self.out_width, self.out_height ), interpolation=cv2.INTER_AREA )
 
     def get_frame(self):
-        ret, image = self.video.read()
-        return ret, image
+        if self.video is not None and self.video.isOpened():
+            ret, image = self.video.read()
+            return ret, image
+        return None, None
+
+    def is_ready(self):
+        if self.video is not None:
+            print( self.video.isOpened() )
+            return self.video.isOpened()
+        return False
     
     @staticmethod
     def preview( image, frame_name ):
@@ -78,11 +91,22 @@ class CameraThread(threading.Thread):
         self.win_name = win_name
         self.srcID    = srcID
         self.camera   = Camera( srcID )
+        self._stop_event = threading.Event()
 
     def run(self):
-        print("STARTING CAMERA THREAD")
         self.camera.setup()
+        print("STARTING CAMERA THREAD")
 
     def getFrame(self):
         ret, image = self.camera.get_frame()
         return ret, image
+
+    def cameraReady(self):
+        return self.camera.is_ready()
+
+    def stop(self):
+        self.camera.release()
+        self._stop_event.set()
+    
+    def stopped(self):
+        return self._stop_event.is_set()
