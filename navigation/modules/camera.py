@@ -46,7 +46,8 @@ class FullFrame:
         cv2.imwrite( "./full_frame.png", self.full_frame )
 
 class Camera:
-    def __init__(self, srcID, config={} ):
+    def __init__(self, name, srcID, config={} ):
+        self._name = name
         self.srcID = srcID
         self.config = {
             'in_width'  : 320,
