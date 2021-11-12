@@ -1,5 +1,7 @@
 from dotenv import dotenv_values
 
+UPLOAD_FOLDER = './upload_dir'
+
 ENV = dotenv_values(".env")
 
 MOTOR_A_EN = int( ENV['MOTOR_A_EN'] )
