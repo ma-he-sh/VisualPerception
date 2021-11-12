@@ -1,5 +1,6 @@
 from modules import motion
 from modules.errors import ThrowPinNotConfigured
+from config import camera_config
 import time
 import cv2
 from imutils.video import VideoStream
@@ -12,8 +13,8 @@ class RobotHandler():
         self.robot_config = robot_config
         self.camera_config= camera_config
         self.bot = motion.Motion()
-        self.cam1= Camera( camera_config['left_cam_src'], camera_config['left_cam_config'] )
-        self.cam2= Camera( camera_config['right_cam_src'], camera_config['right_cam_config'] )
+        self.cam1= Camera( 'left', camera_config['left_cam_src'], camera_config['left_cam_config'] )
+        self.cam2= Camera( 'right', camera_config['right_cam_src'], camera_config['right_cam_config'] )
 
     def initialize(self):
         print( "======ROBOT INITIALIZE======" )
@@ -67,17 +68,6 @@ class RobotHandler():
 
 
 if __name__ == '__main__':
-    camera_config = {
-        'left_cam_src' : 0,
-        'left_cam_config' : {
-            'angle' : 90
-        },
-        'right_cam_src': 2,
-        'right_cam_config' : {
-            'angle' : -90
-        }
-    }
-
     robotHandler = RobotHandler({}, camera_config)
     robotHandler.initialize()
 
