@@ -2,6 +2,11 @@ from flask import Flask, render_template, request, url_for, flash, redirect, jso
 from werkzeug.utils import secure_filename
 import os
 import config as ENV
+from modules.database import DB
+
+# create the database
+db = DB()
+db.create_tables()
 
 ALLOWED_EXTENSIONS = {'jpg', 'png'}
 
