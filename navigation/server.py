@@ -1,21 +1,18 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 from werkzeug.utils import secure_filename
 import os
+from modules.helpers import allowed_file, get_new_filename
 import config as ENV
 from modules.database import DB
+from modules.planner import SrcImage, Planner
 
 # create the database
 db = DB()
 db.create_tables()
 
-ALLOWED_EXTENSIONS = {'jpg', 'png'}
-
 app = Flask( __name__ )
 app.config['UPLOAD_FOLDER'] = ENV.UPLOAD_FOLDER
-
-def allowed_file( filename ):
-    return '.' in filename and \
-            filename.rsplit( '.', 1)[1].lower() in ALLOWED_EXTENSIONS
+ 
 
 @app.route("/")
 def main():
@@ -36,7 +33,11 @@ def upload_map():
         )
     if file and allowed_file( file.filename ):
         filename = secure_filename( file.filename )
-        file.save( os.path.join( app.config['UPLOAD_FOLDER'], filename ) )
+        new_file_name, file_ext = get_new_filename( file.filename )
+        file.save( os.path.join( app.config['UPLOAD_FOLDER'], new_file_name ) )
+
+        db.insert_map_entry( new_file_name, file_ext, '1920', '1080' )
+
         return jsonify(
             error=False,
             message='File uploaded'
@@ -44,6 +45,41 @@ def upload_map():
     return jsonify(
         error=True,
         message='Something went wrong'
+    )
+
+@app.route("/get_maps", methods=["GET"])
+def get_maps():
+    paths = db.get_paths()
+    #print(paths)
+    if not paths:
+        return jsonify(
+            error=True,
+            paths=[],
+        )
+    else:
+        return jsonify(
+            error=False,
+            paths=paths
+        )
+
+@app.route("/robot_commands", methods=["POST"])
+def robot_commands():
+    pass
+
+@app.route("/test")
+def test():
+    path = Planner(  'b3898d0e-ea1c-434b-b9b5-f354cead4217.jpg', 1920, 1080 )
+    path.process_image()
+
+
+
+    # image = SrcImage( 'b3898d0e-ea1c-434b-b9b5-f354cead4217.jpg' )
+    # imData = image.get_image()
+    # print( imData )
+    # print("test path")
+    
+    return jsonify(
+        error=False
     )
 
 if __name__ == '__main__':

@@ -33,28 +33,40 @@ class DB():
     def insert_map_entry(self, file_uuid, file_ext, file_width, file_height):
         file_date = datetime.today().strftime('%Y-%m-%d')
         conn = self.get_db_connection()
-        conn.execute( '''
+        c = conn.cursor()
+        c.execute( '''
             INSERT INTO maps ( file_uuid, file_date, file_ext, file_width, file_height ) VALUES ( ?, ?, ?, ?, ? )
         ''', ( file_uuid, file_date, file_ext, file_width, file_height ) )
+        conn.commit()
+        conn.close()
 
     def create_tables(self):
         conn = self.get_db_connection()
         conn.execute( '''CREATE TABLE IF NOT EXISTS maps( 
-            ID INT PRIMARY KEY NOT NULL,
+            ID integer primary key,
             file_uuid   text,
             file_date   date,
             file_ext    text,
-            file_width  int,
-            file_height int
+            file_width  text,
+            file_height text
         )''')
         conn.commit()
         conn.close()
 
     def get_paths(self):
+        maps = []
         conn = self.get_db_connection()
-        paths= conn.execute( 'SELECT * FROM paths' ).fetchall()
+        rows= conn.execute( 'SELECT * FROM maps' ).fetchall()
+        for map in rows:
+            maps.append({
+                'ID': map[0],
+                'file_uuid': map[1],
+                'file_ext' : map[2],
+                'file_width': map[4],
+                'file_height': map[5]
+            })
         conn.close()
-        if paths is None:
+        if rows is None:
             return False
-        return paths
+        return maps
 
