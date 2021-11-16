@@ -50,11 +50,11 @@ class Camera:
         self._name = name
         self.srcID = srcID
         self.config = {
-            'in_width'  : 320,
-            'in_height' : 240,
+            'in_width'  : 640, #320
+            'in_height' : 480, #240
             'fps'       : 20,
-            'out_width' : 320,
-            'out_height': 240,
+            'out_width' : 640, #320
+            'out_height': 480, #240
             'angle'     : 0,
         }
         self.video = None
@@ -72,6 +72,8 @@ class Camera:
 
     def init_camera(self):
         self.video = VideoStream( self.srcID ).start() # warm startup
+        self.video.resolution = ( self.config['in_width'], self.config['in_height'] )
+        self.video.framerate  = self.config['fps']
 
     def start(self):
         print("camera initialize")

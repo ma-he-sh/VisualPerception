@@ -24,9 +24,9 @@ leftCam = None
 rightCam= None
 mainCam = None
 
-chessBoardSize = ( 6, 4 )
-frameSize      = ( 320, 426 )
-winSize        = (11, 11)
+chessBoardSize = ( 8, 6 )
+frameSize      = ( 640, 480 )
+winSize        = (11,11)
 zerorZone      = (-1, -1)
 
 criteria = ( cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001 )
@@ -63,6 +63,7 @@ try:
             if image is not None:
                 frame = stream.stabalized( image )
                 frame = stream.resize( frame )
+                cv2.normalize( frame, frame, 0, 255, cv2.NORM_MINMAX )
                 full_frame.append( frame )
         
         if len( full_frame ) > 0:
@@ -70,14 +71,19 @@ try:
                 leftImage = full_frame[0]
                 rightImage= full_frame[1]
 
+                origLeftImage = leftImage.copy()
+                origRightImage= rightImage.copy()
+
                 leftGrayImage = cv2.cvtColor( leftImage, cv2.COLOR_BGR2GRAY )
                 rightGrayImage= cv2.cvtColor( rightImage, cv2.COLOR_BGR2GRAY )
 
                 # find chess board corners
-                retL, cornersL = cv2.findChessboardCorners( leftGrayImage, chessBoardSize, None )
-                retR, cornersR = cv2.findChessboardCorners( rightGrayImage, chessBoardSize, None )
-
-                #print( cornersL, cornersR )
+                flags = 0
+                flags |= cv2.CALIB_CB_ADAPTIVE_THRESH
+                flags |= cv2.CALIB_CB_NORMALIZE_IMAGE
+                flags |= cv2.CALIB_CB_FAST_CHECK
+                retL, cornersL = cv2.findChessboardCorners( leftGrayImage, chessBoardSize, flags )
+                retR, cornersR = cv2.findChessboardCorners( rightGrayImage, chessBoardSize, flags )
 
                 if retL and retR == True:
                     cornersL = cv2.cornerSubPix( leftGrayImage, cornersL, winSize, zerorZone, criteria )
@@ -87,15 +93,24 @@ try:
                     cv2.drawChessboardCorners( leftImage, chessBoardSize, cornersL, retL )
                     cv2.drawChessboardCorners( rightImage, chessBoardSize, cornersR, retR )
 
+                    # image_name = CALIBRATION_PATH + "/{name}_{index}.png".format( name='lt', index=frame_index )
+                    # cv2.imwrite( image_name, origLeftImage )
+
+                    # image_name = CALIBRATION_PATH + "/{name}_{index}.png".format( name='rt', index=frame_index )
+                    # cv2.imwrite( image_name, origRightImage )
+
+                    # print("<< IMAGE SAVED >>")
+                    # frame_index+=1
+
                 visual = np.concatenate( (leftImage, rightImage), axis=1 )
                 cv2.imshow( "preview", visual )
 
                 if cv2.waitKey(1) & 0xFF == ord( "s" ):
                     image_name = CALIBRATION_PATH + "/{name}_{index}.png".format( name='lt', index=frame_index )
-                    cv2.imwrite( image_name, leftImage )
+                    cv2.imwrite( image_name, origLeftImage )
 
                     image_name = CALIBRATION_PATH + "/{name}_{index}.png".format( name='rt', index=frame_index )
-                    cv2.imwrite( image_name, rightImage )
+                    cv2.imwrite( image_name, origRightImage )
 
                     print("<< IMAGE SAVED >>")
                     frame_index+=1

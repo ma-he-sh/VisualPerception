@@ -19,7 +19,6 @@ CAM_LT_ANGLE = int( ENV['CAM_LT_ANGLE'] )
 CAM_RT_ANGLE = int( ENV['CAM_RT_ANGLE'] )
 
 STEREO_VISION = bool( int(ENV['STEREO_VISION']) == 1 )
-print( STEREO_VISION )
 
 camera_config = {
     'left_cam_src' : CAM_LT_SRC,
@@ -31,3 +30,6 @@ camera_config = {
         'angle' : CAM_RT_ANGLE
     }
 }
+
+CAMERA_CONFIGS = "./configs"
+CAMERA_CONFIGS_STEREO_MAP = CAMERA_CONFIGS + "/stereo_map.xml"
