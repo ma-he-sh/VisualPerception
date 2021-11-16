@@ -3,7 +3,7 @@ Camera calibration script
 @modified code, original code taken from https://learnopencv.com/camera-calibration-using-opencv/
 """
 
-from os import path
+import os
 import time
 import cv2
 import glob
@@ -13,6 +13,11 @@ from config import camera_config, STEREO_VISION, CAMERA_CONFIGS_STEREO_MAP
 
 if not STEREO_VISION:
     print( "MAKESURE STERIO VISON IS DEFINE FOR CALIBRATING" )
+
+if os.path.isfile( CAMERA_CONFIGS_STEREO_MAP ):
+    os.unlink( CAMERA_CONFIGS_STEREO_MAP )
+else:
+    print("")
 
 # get dir where the calibration files exists
 CALIBRATION_PATH = "./calibrations"
