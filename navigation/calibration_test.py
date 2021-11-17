@@ -24,6 +24,7 @@ rightCam= Camera( 'right', camera_config['right_cam_src'], camera_config['right_
 leftCam.start()
 rightCam.start()
 
+stereo = cv2.StereoBM_create( numDisparities=16, blockSize=15 )
 try:
     camera_list = []
     camera_list.append( leftCam )
@@ -37,16 +38,24 @@ try:
                 frame = stream.stabalized( image )
                 frame = stream.resize( frame )
                 cv2.normalize( frame, frame, 0, 255, cv2.NORM_MINMAX )
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 full_frame.append( frame )
 
         if len( full_frame ) > 0:
             leftImage = full_frame[0]
-            leftImage = cv2.remap( leftImage, ltStereoMapX, ltStereoMapY, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0 )
+            #leftImage = cv2.remap( leftImage, ltStereoMapX, ltStereoMapY, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0 )
 
             rightImage= full_frame[1]
-            rightImage = cv2.remap( rightImage, rtStereoMapX, rtStereoMapY, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0 )
+            #rightImage = cv2.remap( rightImage, rtStereoMapX, rtStereoMapY, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0 )
 
             visual = np.concatenate( (leftImage, rightImage), axis=1 )
+
+            stereo.setNumDisparities(16)
+            stereo.setBlockSize(15)
+            stereo.setPreFilterType(1)
+            disparity = stereo.compute( leftImage, rightImage )
+
+            cv2.imshow( "gray", disparity )
             cv2.imshow( "preview", visual )
             cv2.waitKey(1)
 

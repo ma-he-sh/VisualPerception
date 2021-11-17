@@ -41,14 +41,18 @@ def calibrate():
     leftCamImages = sorted( glob.glob( CALIBRATION_PATH + "/rt_*.png" ) )
     rightCamImages= sorted( glob.glob( CALIBRATION_PATH + "/lt_*.png" ) )
 
+    imageShapeL = None
+    imageShapeR = None
+
     for leftImage, rightImage in zip( leftCamImages, rightCamImages ):
         imgL = cv2.imread( leftImage )
         imgR = cv2.imread( rightImage )
 
         leftGrayImage = cv2.cvtColor( imgL, cv2.COLOR_BGR2GRAY )
-        leftGrayImage = cv2.resize( leftGrayImage, ( 640, 852 ) )
         rightGrayImage= cv2.cvtColor( imgR, cv2.COLOR_BGR2GRAY )
-        leftGrayImage = cv2.resize( rightGrayImage, ( 640, 852 ) )
+
+        imageShapeL = leftGrayImage.shape
+        imageShapeR = rightGrayImage.shape
 
         # find chess board corners
         # image_invertedL = np.array(256 - leftGrayImage, dtype=np.uint8)
@@ -74,16 +78,31 @@ def calibrate():
         #cv2.imshow( "preview", visual )
         #cv2.waitKey(0)
 
-    # calibration
-    retL, mtxL, distL, rvecsL, tvecsL = cv2.calibrateCamera( objectPointsArr, imagePointsArrL, frameSize, None, None )
-    new_mtxL, roiL= cv2.getOptimalNewCameraMatrix(mtxL,distL,frameSize,1, frameSize)
+    print( imageShapeL, imageShapeL )
 
-    retR, mtxR, distR, rvecsR, tvecsR = cv2.calibrateCamera( objectPointsArr, imagePointsArrR, frameSize, None, None )
-    new_mtxR, roiR= cv2.getOptimalNewCameraMatrix(mtxR,distR,frameSize,1,frameSize)
+    # calibration
+    imgLW, imgLH = imageShapeL[:2]
+    retL, mtxL, distL, rvecsL, tvecsL = cv2.calibrateCamera( objectPointsArr, imagePointsArrL, imageShapeL[::-1], None, None )
+    new_mtxL, roiL= cv2.getOptimalNewCameraMatrix(mtxL,distL,(imgLW, imgLH),1, (imgLW, imgLH))
+
+    imgRW, imgRH = imageShapeR[:2]
+    retR, mtxR, distR, rvecsR, tvecsR = cv2.calibrateCamera( objectPointsArr, imagePointsArrR, imageShapeR[::-1], None, None )
+    new_mtxR, roiR= cv2.getOptimalNewCameraMatrix(mtxR,distR,(imgRW, imgRH),1, (imgRW, imgRH))
 
     # stereo calibration
     flags = 0
-    flags |= cv2.CALIB_FIX_INTRINSIC
+    flags |= cv2.CALIB_FIX_PRINCIPAL_POINT
+    #flags |= cv2.CALIB_USE_INTRINSIC_GUESS
+    #flags |= cv2.CALIB_FIX_FOCAL_LENGTH
+    #flags |= cv2.CALIB_FIX_ASPECT_RATIO
+    #flags |= cv2.CALIB_ZERO_TANGENT_DIST
+    #flags |= cv2.CALIB_RATIONAL_MODEL
+    #flags |= cv2.CALIB_SAME_FOCAL_LENGTH
+    #flags |= cv2.CALIB_FIX_K3
+    #flags |= cv2.CALIB_FIX_K4
+    #flags |= cv2.CALIB_FIX_K5
+    #flags |= cv2.CALIB_FIX_INTRINSIC
+
     criteria_stereo= (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # calculate the camera matrix
@@ -94,17 +113,17 @@ def calibrate():
                                                           distL,
                                                           new_mtxR,
                                                           distR,
-                                                          frameSize,
+                                                          imageShapeR[::-1],
                                                           criteria_stereo,
                                                           flags)
     
     # stereo rectification
     rectify_scale= 1 # image not croped set 1 else 0
-    rect_l, rect_r, proj_mat_l, proj_mat_r, Q, roiL, roiR= cv2.stereoRectify(new_mtxL, distL, new_mtxR, distR, frameSize, Rot, Trns, rectify_scale,(0,0))
+    rect_l, rect_r, proj_mat_l, proj_mat_r, Q, roiL, roiR= cv2.stereoRectify(new_mtxL, distL, new_mtxR, distR, imageShapeR[::-1], Rot, Trns, rectify_scale,(0,0))
 
     # create rectification maps
-    StereoMapLeft   = cv2.initUndistortRectifyMap(new_mtxL, distL, rect_l, proj_mat_l, frameSize, cv2.CV_16SC2)
-    StereoMapRight  = cv2.initUndistortRectifyMap(new_mtxR, distR, rect_r, proj_mat_r, frameSize, cv2.CV_16SC2)
+    StereoMapLeft   = cv2.initUndistortRectifyMap(new_mtxL, distL, rect_l, proj_mat_l, imageShapeL[::-1], cv2.CV_16SC2)
+    StereoMapRight  = cv2.initUndistortRectifyMap(new_mtxR, distR, rect_r, proj_mat_r, imageShapeR[::-1], cv2.CV_16SC2)
     
     # saving mapped data as xml
     cvFile = cv2.FileStorage( CAMERA_CONFIGS_STEREO_MAP, cv2.FILE_STORAGE_WRITE )

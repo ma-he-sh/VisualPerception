@@ -25,7 +25,7 @@ rightCam= None
 mainCam = None
 
 chessBoardSize = ( 8, 6 )
-frameSize      = ( 640, 480 )
+frameSize      = ( 480, 640 )
 winSize        = (11,11)
 zerorZone      = (-1, -1)
 
