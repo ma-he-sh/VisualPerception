@@ -2,10 +2,13 @@ import cv2
 import numpy as np
 
 class Node():
-    def __init__(self, x, y, r):
+    def __init__(self, index, x, y, r):
+        self.index = index
         self.x = x
         self.y = y
         self.r = r
+        self.is_start    = False
+        self.is_goal     = False
         self.is_obstacle = False
         self.cost = 0
         self.parent = None
@@ -31,7 +34,7 @@ class ImageToNodes():
                 self.pos.append( [x, y] )
                 # border outline
                 #cv2.circle( localMap, center=(x, y), radius=r, color=( 0, 0, 0 ), thickness=1 )
-                objClass = Node( x, y, r )
+                objClass = Node( self.num_nodes, x, y, r )
                 self.nodes.append( objClass )
 
                 self.num_nodes+=1
