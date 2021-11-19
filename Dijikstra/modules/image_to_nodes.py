@@ -7,6 +7,8 @@ class Node():
         self.x = x
         self.y = y
         self.r = r
+        self.pos         = [x, y]
+        self.visited     = False
         self.is_start    = False
         self.is_goal     = False
         self.is_obstacle = False
