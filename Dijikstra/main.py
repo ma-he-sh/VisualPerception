@@ -109,13 +109,13 @@ if __name__ == "__main__":
             if start[0] == obj.x and start[1] == obj.y:
                 obj.is_start = True
                 start_node = obj
-                #plt.plot( obj.x, obj.y, color="r", marker="s" )
+                plt.plot( obj.x, obj.y, color="r", marker="s" )
             elif goal[0] == obj.x and goal[1] == obj.y:
                 obj.is_goal  = True
                 goal_node = obj
-                #plt.plot( obj.x, obj.y, color="g", marker="s" )
+                plt.plot( obj.x, obj.y, color="g", marker="p" )
             else:
-                #plt.plot( obj.x, obj.y, color="b", marker="s" )
+                plt.plot( obj.x, obj.y, color="b", marker="p" )
                 pass
 
     # set the neighbours of the node
@@ -126,10 +126,6 @@ if __name__ == "__main__":
 
     algo = Algorithm( map, start_node, goal_node, resolution )
     algo.init()
-
-    fig, ax = plt.subplots( figsize=(20, 20) )
-    ax.set_aspect("equal")
-    #ani = FuncAnimation( fig, algo.run, frames=range( 1, map_size[0] * map_size[1] ), interval=1000, repeat=True )
 
     path_found = algo.exec( plt ) # exec
     algo.generate_path(plt)
