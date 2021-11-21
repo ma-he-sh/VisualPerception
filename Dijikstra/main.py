@@ -33,6 +33,52 @@ class Explorer():
         return map
 
     @staticmethod
+    def get_obstacles( map_name ):
+        # get obstacles from the given map
+        localMap = cv2.imread( map_name )
+        gray = cv2.cvtColor( localMap, cv2.COLOR_BGR2GRAY )
+        gray_blured = cv2.blur( gray, (3, 3))
+        obstacles = []
+
+        index = 0
+        detected_circles = cv2.HoughCircles( gray_blured, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=1, maxRadius=40 )
+        if detected_circles is not None:
+            detected_circles = np.uint16( np.around( detected_circles ) )
+            for pt in detected_circles[0, :]:
+                a, b, r = pt[0], pt[1], pt[2]
+                pos = ( a, b )
+
+                # border outline
+                #cv2.circle( localMap, center=( a, b ), radius=r, color=( 0, 0, 0 ), thickness=1 )
+                obstacles.append( pos )
+                index += 1
+
+        return obstacles
+
+    @staticmethod
+    def coord_within( x1, y1, x2, y2, objX, objY ):
+        return ( objX >= x1 and objX <= x2 and objY >= y1 and objY <= y2 )
+
+    @staticmethod
+    def within_range( curr_node, obstacles, resolution ):
+        """
+        Check if the obstacle is withing mapping regions
+        As extact mapping not available 
+        """
+
+        x1 = curr_node.x
+        y1 = curr_node.y
+        x2 = curr_node.x + resolution
+        y2 = curr_node.y + resolution
+
+        found = False
+        for pos in obstacles:
+            if Explorer.coord_within( x1, y1, x2, y2, pos[0], pos[1] ):
+                found = True
+                break
+        return found
+
+    @staticmethod
     def get_neighbours( curr_node, node_arr, resolution ):
         neighbours = []
 
@@ -98,8 +144,15 @@ if __name__ == "__main__":
     map = Explorer.get_map_grid( map_size[0], map_size[1], resolution )
     #print( len( map ) )
 
-    fig, ax = plt.subplots( figsize=(20, 20) )
-    ax.set_aspect("equal")
+    # get the obstacle location
+    obstacles = Explorer.get_obstacles( map_name )
+    print( obstacles )
+
+    #fig, ax = plt.subplots( figsize=(20, 20) )
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    #ax.set_aspect("equal")
+    ax.set_aspect('auto')
 
     start_node = None
     goal_node  = None
@@ -115,8 +168,9 @@ if __name__ == "__main__":
                 goal_node = obj
                 plt.plot( obj.x, obj.y, color="g", marker="p" )
             else:
-                plt.plot( obj.x, obj.y, color="b", marker="p" )
-                pass
+                if Explorer.within_range( obj, obstacles, resolution ):
+                    obj.is_obstacle = True
+                    plt.plot( obj.x, obj.y, color="y", marker="p" )
 
     # set the neighbours of the node
     for row in map:
