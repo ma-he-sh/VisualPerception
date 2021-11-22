@@ -112,7 +112,7 @@
 
         switch( action_id ) {
             case 'play':
-                window.location.href='/run_map=' + map_id;
+                window.location.href='/run_map/' + map_id;
                 break;
             case 'view':
                 view_map( map_id );

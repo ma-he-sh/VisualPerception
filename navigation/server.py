@@ -113,7 +113,6 @@ def delete_map():
         )
     else:
         file_uuid = request.form['file_uuid']
-        print(file_uuid)
         entry = db.get_entry(file_uuid)
         if not entry:
             return jsonify(
@@ -133,6 +132,17 @@ def delete_map():
             message='File deleted'
         )
 
+@app.route("/run_map/<file_uuid>")
+def run_map(file_uuid):
+    if file_uuid is None or len(file_uuid) != 36:
+        return redirect('/?map_error=invalid_uuid', 302 )
+
+    entry = db.get_entry(file_uuid)
+    if not entry:
+        return redirect('/?map_error=file_not_found', 302)
+
+    return render_template( 'map.html' )
+
 @app.route("/robot_commands", methods=["POST"])
 def robot_commands():
     pass
@@ -141,7 +151,6 @@ def robot_commands():
 def test():
     path = Planner(  'b3898d0e-ea1c-434b-b9b5-f354cead4217.jpg', 1920, 1080 )
     path.process_image()
-
 
 
     # image = SrcImage( 'b3898d0e-ea1c-434b-b9b5-f354cead4217.jpg' )
