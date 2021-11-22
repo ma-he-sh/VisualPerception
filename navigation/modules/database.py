@@ -30,13 +30,13 @@ class DB():
         conn.row_factory = sqlite3.Row
         return conn
 
-    def insert_map_entry(self, file_uuid, file_ext, file_width, file_height):
+    def insert_map_entry(self, file_uuid, file_name, file_ext, file_width, file_height):
         file_date = datetime.today().strftime('%Y-%m-%d')
         conn = self.get_db_connection()
         c = conn.cursor()
         c.execute( '''
-            INSERT INTO maps ( file_uuid, file_date, file_ext, file_width, file_height ) VALUES ( ?, ?, ?, ?, ? )
-        ''', ( file_uuid, file_date, file_ext, file_width, file_height ) )
+            INSERT INTO maps ( file_uuid, file_name, file_date, file_ext, file_width, file_height ) VALUES ( ?, ?, ?, ?, ?, ? )
+        ''', ( file_uuid, file_name, file_date, file_ext, file_width, file_height ) )
         conn.commit()
         conn.close()
 
@@ -45,11 +45,26 @@ class DB():
         conn.execute( '''CREATE TABLE IF NOT EXISTS maps( 
             ID integer primary key,
             file_uuid   text,
+            file_name   text,
             file_date   date,
             file_ext    text,
             file_width  text,
             file_height text
         )''')
+        conn.commit()
+        conn.close()
+
+    def get_entry(self, file_uuid):
+        conn = self.get_db_connection()
+        row = conn.execute("SELECT * FROM maps WHERE file_uuid='%s'" % file_uuid ).fetchone()
+        conn.close()
+        if row is None:
+            return False
+        return row
+
+    def delete_entry(self, file_uuid):
+        conn = self.get_db_connection()
+        conn.execute("DELETE FROM maps WHERE file_uuid='%s'" % file_uuid )
         conn.commit()
         conn.close()
 
@@ -61,9 +76,11 @@ class DB():
             maps.append({
                 'ID': map[0],
                 'file_uuid': map[1],
-                'file_ext' : map[2],
-                'file_width': map[4],
-                'file_height': map[5]
+                'file_name': map[2],
+                'file_date': map[3],
+                'file_ext' : map[4],
+                'file_width': map[5],
+                'file_height': map[6]
             })
         conn.close()
         if rows is None:

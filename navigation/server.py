@@ -5,6 +5,7 @@ from modules.helpers import allowed_file, get_new_filename
 import config as ENV
 from modules.database import DB
 from modules.planner import SrcImage, Planner
+import base64
 
 # create the database
 db = DB()
@@ -16,7 +17,8 @@ app.config['UPLOAD_FOLDER'] = ENV.UPLOAD_FOLDER
 
 @app.route("/")
 def main():
-    return render_template( 'index.html' );
+    paths = db.get_paths()
+    return render_template( 'index.html', maps=paths )
 
 @app.route("/upload_map", methods=["POST"])
 def upload_map():
@@ -31,12 +33,22 @@ def upload_map():
                 error=True,
                 message='File not selected',
         )
+    if 'map_width' not in request.form:
+        return jsonify(
+            error=True,
+            message='Map width not defined'
+        )
+    if 'map_height' not in request.form:
+        return jsonify(
+            error=True,
+            message='Map height not defined'
+        )
     if file and allowed_file( file.filename ):
         filename = secure_filename( file.filename )
-        new_file_name, file_ext = get_new_filename( file.filename )
+        file_uuid, new_file_name, file_ext = get_new_filename( file.filename )
         file.save( os.path.join( app.config['UPLOAD_FOLDER'], new_file_name ) )
 
-        db.insert_map_entry( new_file_name, file_ext, '1920', '1080' )
+        db.insert_map_entry( file_uuid, new_file_name, file_ext, request.form['map_width'], request.form['map_height'] )
 
         return jsonify(
             error=False,
@@ -47,10 +59,40 @@ def upload_map():
         message='Something went wrong'
     )
 
+@app.route("/get_grid_map", methods=["GET"])
+def get_grid_map():
+    if 'map_uuid' not in request:
+        return jsonify(
+            error=True,
+            message='Map file not selected'
+        )
+    print( request.file_uuid )
+
+@app.route("/get_map_url", methods=["GET"])
+def get_map_url():
+    if request.args.get('file_uuid') is not None:
+        file_uuid = request.args.get('file_uuid')
+        entry = db.get_entry( file_uuid )
+        if not entry:
+            return jsonify(
+                error=True,
+                message='File uuid not found'
+            )
+
+        file_ext = entry[4]
+        return jsonify(
+            success=True,
+            url=url_for('static', filename=ENV.UPLOAD_DIR_DIRECT + '/' + file_uuid + file_ext)
+        )
+    else:
+        return jsonify(
+            error=True,
+            message='File uuid invalid'
+        )
+
 @app.route("/get_maps", methods=["GET"])
 def get_maps():
     paths = db.get_paths()
-    #print(paths)
     if not paths:
         return jsonify(
             error=True,
@@ -60,6 +102,35 @@ def get_maps():
         return jsonify(
             error=False,
             paths=paths
+        )
+
+@app.route("/delete_map", methods=["POST"])
+def delete_map():
+    if 'file_uuid' not in request.form:
+        return jsonify(
+            error=True,
+            message='File uuid invalid'
+        )
+    else:
+        file_uuid = request.form['file_uuid']
+        print(file_uuid)
+        entry = db.get_entry(file_uuid)
+        if not entry:
+            return jsonify(
+                error=True,
+                message='File uuid not found'
+            )
+
+        file_ext = entry[4]
+        db.delete_entry( file_uuid )
+
+        file_dir = ENV.UPLOAD_FOLDER + '/' + file_uuid + file_ext
+        if os.path.exists( file_dir ):
+            os.remove( file_dir )
+
+        return jsonify(
+            success=True,
+            message='File deleted'
         )
 
 @app.route("/robot_commands", methods=["POST"])

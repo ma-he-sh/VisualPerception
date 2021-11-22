@@ -1,6 +1,7 @@
 from dotenv import dotenv_values
 
-UPLOAD_FOLDER = './upload_dir'
+UPLOAD_FOLDER = './static/upload_dir'
+UPLOAD_DIR_DIRECT = 'upload_dir'
 
 ENV = dotenv_values(".env")
 

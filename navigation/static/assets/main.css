@@ -1,0 +1,204 @@
+body {
+    background-color: #000;
+    padding: 0px;
+    margin: 0px;
+    font-family: monospace;
+    color: #fff;
+}
+
+* > svg {
+    pointer-events: none;
+}
+
+input[type=text], input[type=number] {
+    min-width: 120px;
+    width: 100%
+    max-width: 300px;
+    font-size: 14px;
+    height: 32px;
+    background-color: transparent;
+    border:1px solid #fff;
+    border-radius: 2.5px;
+    text-indent: 10px;
+    color: #fff;
+}
+
+#app_window {
+    width: 100%;
+    height: auto;
+    float:left;
+    max-width: 1000px;
+    min-width: 300px;
+    box-sizing: border-box;
+    top: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 40px;
+}
+
+#app_window .app_wrapper {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px;
+    box-sizing: border-box;
+    float:left;
+    border: 1px solid #fff;
+    border-radius: 2.5px;
+}
+
+#app_window .app_preview_wrapper {
+    min-width: 300px;
+    max-width: 1000px;
+    width: 100%;
+    height: auto;
+    position: fixed;
+    z-index: 10000;
+    margin: auto;
+    top: 40px;
+    right: 0;
+    left: 0;
+    border: 1px solid #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #000;
+}
+
+#app_window .app_preview_wrapper.hidden_wrapper {
+    display: none;
+}
+
+#app_window .app_preview_wrapper .app_preview_header {
+    width: 100%;
+    height: 40px;
+    float:left;
+}
+
+#app_window .app_preview_wrapper .app_preview_header .app_preview_close {
+    width: 40px;
+    height: 40px;
+    line-height: 50px;
+    text-align:center;
+    float: right;
+    cursor: pointer;
+}
+
+#app_window .app_preview_wrapper #preview_map {
+    width: 100%;
+    height: auto;
+    float: left;
+}
+
+#app_window .app_preview_wrapper #preview_map img {
+    width: 100%;
+    min-height: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+}
+
+#app_window .app_wrapper .a_header {
+    width: 100%;
+    float: left;
+    min-height: 42px;
+    line-height: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0px 10px 0px 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba( 255, 255, 255, 0.25 );
+    cursor: pointer;
+}
+
+#app_window .app_wrapper .a_body {
+    width: 100%;
+    min-height: 100px;
+    float: left;
+    font-weight: normal;
+    box-sizing: border-box;
+}
+
+#app_window .app_wrapper .a_maps {
+    width: 100%;
+    min-height: 100px;
+    float: left;
+    font-weight: normal;
+    box-sizing: border-box;
+}
+
+#app_window .app_wrapper .map_cards {
+    width:100%;
+    min-height: 40px;
+    padding: 10px;
+    float: left;
+    box-sizing:border-box;
+}
+
+#app_window .app_wrapper .map_cards .map_card {
+    width: 100%;
+    height: 40px;
+    float: left;
+    font-size: 18px;
+    line-height: 40px;
+    text-indent: 10px;
+    border: 1px solid #fff;
+    border-radius: 2.5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+}
+
+#app_window .app_wrapper .map_cards .map_card .map_title {
+    flex: 1;
+    width: 100%;
+    float: left;
+    height: 40px;
+}
+
+#app_window .app_wrapper .map_cards .map_card .map_actions {
+    width: 120px;
+    float: right;
+    height: 40px;
+}
+
+#app_window .app_wrapper .map_cards .map_card .map_actions .map_icons {
+    width: 40px;
+    height: 40px;
+    float: left;
+    line-height: 50px;
+}
+
+#app_window .app_wrapper .map_cards .map_card .map_actions .map_icons:hover {
+    color: #2196F3;
+}
+
+#app_window .app_wrapper .a_body.hidden_section,
+#app_window .app_wrapper .a_maps.hidden_section {
+    display: none;
+}
+
+#app_window .app_wrapper .a_body .a_status {
+    width: 100%;
+    float: left;
+    line-height: 32px;
+    font-size: 16px;
+    padding: 0px 10px 0px 10px;
+}
+
+#app_window .app_wrapper .a_body .a_upload {
+    width: 100%;
+    float: left;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#app_window .app_wrapper .a_section {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    float: left;
+}

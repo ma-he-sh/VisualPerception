@@ -20,5 +20,6 @@ def allowed_file( filename ):
 
 def get_new_filename( filename ):
     file_name, file_ext = os.path.splitext( filename )
-    new_file_name = str( uuid.uuid4() ) + file_ext
-    return new_file_name, file_ext
+    file_uuid = str( uuid.uuid4() )
+    new_file_name = file_uuid + file_ext
+    return file_uuid, new_file_name, file_ext
