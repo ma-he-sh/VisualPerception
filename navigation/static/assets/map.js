@@ -1,42 +1,34 @@
 (function($) {
     console.log( 'server loaded' );
 
-    d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv', function(err, rows){
+d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv', function(err, rows){
 function unpack(rows, key) {
-  return rows.map(function(row) { return row[key]; });
-}
-var z_data=[ ]
-for(i=0;i<24;i++)
-{
-  z_data.push(unpack(rows,i));
-}
+	return rows.map(function(row)
+	{ return row[key]; });}
 
-var data = [{
-  z: z_data,
-  type: 'surface',
-  contours: {
-    z: {
-      show:true,
-      usecolormap: false,
-      highlightcolor:"#42f462",
-      project:{z: true}
-    }
-  }
-}];
-
-var layout = {
-  scene: {camera: {eye: {x: 1.87, y: 0.88, z: -0.64}}},
-  autosize: true,
-  width: '100%',
-  height: 500,
-  margin: {
-    l: 65,
-    r: 50,
-    b: 65,
-    t: 90,
-  }
+var trace1 = {
+	x:unpack(rows, 'x1'), y: unpack(rows, 'y1'), z: unpack(rows, 'z1'),
+	mode: 'markers',
+	marker: {
+		size: 12,
+		line: {
+		color: 'rgba(255, 217, 217, 0.14)',
+		width: 0.5},
+		opacity: 0.8},
+	type: 'scatter3d'
 };
 
+var data = [trace1];
+var layout = {margin: {
+	l: 0,
+	r: 0,
+	b: 0,
+	t: 0
+  },
+    paper_bgcolor: 'rgb(0, 0, 0)',
+    autosize: true,
+    height: 800
+  };
 Plotly.newPlot('tester', data, layout);
 });
 

@@ -49,6 +49,17 @@ input[type=text], input[type=number] {
     border-radius: 2.5px;
 }
 
+#app_window .map_wrapper {
+    width: 100%;
+    min-height: 800px;
+    margin-bottom: 10px;
+    padding:5px;
+    box-sizing: border-box;
+    float: left;
+    border: 1px solid #fff;
+    border-radius: 2.5px;
+}
+
 #app_window .app_preview_wrapper {
     min-width: 300px;
     max-width: 1000px;
