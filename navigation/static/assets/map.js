@@ -72,6 +72,11 @@ class MapHandler {
 (function($) {
     console.log( 'server loaded' );
 
+	var goals = {
+		'x': [],
+		'y': [],
+		'z': [],
+	}
 	var mapHandler = new MapHandler( grid_pos, obstacle_pos )
 	grid_rows = mapHandler.get_grid_map();
 	obstacle_rows = mapHandler.get_obstacle_map();
@@ -82,7 +87,7 @@ class MapHandler {
 		marker: {
 			size: 1,
 			line: {
-				color: 'rgba(255, 217, 217, 0.14)',
+				color: 'rgba(255, 255, 255, 1)',
 				width: 1,
 			},
 			opacity: 0.2
@@ -104,7 +109,21 @@ class MapHandler {
 		type: 'scatter3d'
 	};
 
-	var data = [grid_map, obstacles];
+	var goal_points = {
+		x: goals['x'], y: goals['y'], z: goals['z'],
+		mode: 'markers',
+		marker: {
+			size: 4,
+			line: {
+				color: 'rgba(255, 0, 0, 0)',
+				width: 1,
+			},
+			opacity: 1
+		},
+		type: 'scatter3d'
+	};
+
+	var data = [grid_map, obstacles, goal_points];
 	var layout = {
 		margin: {
 			l: 0,
@@ -113,10 +132,32 @@ class MapHandler {
 			t: 0,
 			pad: 100
 		},
+		yaxis: {
+			dticks: 10,
+		},
+		xaxis: {
+			dticks: 10,
+		},
 		paper_bgcolor: 'rgb(0, 0, 0)',
 		autosize: true,
-		height: 800
+		height: 800,
+		showlegend: false,
 	};
 	Plotly.newPlot('grid_map', data, layout);
+
+	var plot = document.getElementById('grid_map');
+	var updated = false;
+	plot.on('plotly_click', function(data) {
+		if( !updated ) {
+			var point = data.points[0];
+			goals['x'].push(point.x);
+			goals['y'].push(point.y);
+			goals['z'].push(point.z);
+			
+			Plotly.newPlot("grid_map", data, layout);  
+			updated = true;
+		}
+	});
+	
 
 })(jQuery);
