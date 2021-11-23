@@ -11,10 +11,13 @@
     <body>
         <div id="app_window">
             <div class="map_wrapper">
-                <div id="tester" ></div>
+                <div id="grid_map" ></div>
             </div>
         </div>
-
+        <script>
+            var obstacle_pos = {{obstacles}};
+            var grid_pos     = {{grid_map}};
+        </script>
         <script src="{{ url_for('static', filename='assets/map.js') }}"></script>
     </body>
 </html>

@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 from werkzeug.utils import secure_filename
 import os
+from algorithm.process_map import ProcessMap
 from modules.helpers import allowed_file, get_new_filename
 import config as ENV
 from modules.database import DB
 from modules.planner import SrcImage, Planner
+import json
 import base64
 
 # create the database
@@ -141,7 +143,12 @@ def run_map(file_uuid):
     if not entry:
         return redirect('/?map_error=file_not_found', 302)
 
-    return render_template( 'map.html' )
+    # get grid map and obstacles
+    processMap = ProcessMap( entry )
+    obstacle_pos = processMap.get_obstacle_pos_for_graph()
+    grid_map_pos = processMap.get_grid_map_pos_for_graph()
+
+    return render_template( 'map.html', obstacles=json.dumps( obstacle_pos ), grid_map=json.dumps( grid_map_pos )  )
 
 @app.route("/robot_commands", methods=["POST"])
 def robot_commands():
