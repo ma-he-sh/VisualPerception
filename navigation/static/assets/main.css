@@ -12,7 +12,7 @@ body {
 
 input[type=text], input[type=number] {
     min-width: 120px;
-    width: 100%
+    width: 100%;
     max-width: 300px;
     font-size: 14px;
     height: 32px;
@@ -33,10 +33,11 @@ input[type=text], input[type=number] {
     top: 0;
     left: 0;
     right: 0;
-    position: fixed;
+    position: absolute;
     margin-left: auto;
     margin-right: auto;
     padding-top: 40px;
+    padding-bottom: 100px;
 }
 
 #app_window .app_wrapper {
@@ -58,6 +59,27 @@ input[type=text], input[type=number] {
     float: left;
     border: 1px solid #fff;
     border-radius: 2.5px;
+}
+
+#app_window .map_header {
+    width: 100%;
+    min-height: 40px;
+    float: left;
+    padding: 5px;
+    box-sizing: border-box;
+    float: left;
+    border: 1px solid #fff;
+    border-radius: 2.5px;
+    margin-bottom: 10px;
+}
+
+#app_window .map_header .run_action {
+    width: 40px;
+    height: 40px;
+    float: left;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
 }
 
 #app_window .app_preview_wrapper {

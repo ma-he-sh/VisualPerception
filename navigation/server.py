@@ -148,7 +148,45 @@ def run_map(file_uuid):
     obstacle_pos = processMap.get_obstacle_pos_for_graph()
     grid_map_pos = processMap.get_grid_map_pos_for_graph()
 
-    return render_template( 'map.html', obstacles=json.dumps( obstacle_pos ), grid_map=json.dumps( grid_map_pos )  )
+    return render_template( 'map.html', map_uuid=file_uuid, obstacles=json.dumps( obstacle_pos ), grid_map=json.dumps( grid_map_pos )  )
+
+@app.route("/set_robot_goals", methods=["POST"])
+def set_robot_goals():
+    ready = True
+    if 'startx' not in request.form:
+        ready = False
+    if 'starty' not in request.form:
+        ready = False
+    if 'endx' not in request.form:
+        ready = False
+    if 'endy' not in request.form:
+        ready = False
+    if 'map_id' not in request.form:
+        ready = False
+
+    if not ready:
+        return jsonify(
+                error=True,
+                message='Data not ready'
+        )
+
+    file_uuid = request.form['map_id']
+
+    entry = db.get_entry( file_uuid )
+    
+    start_node = ( int(request.form['startx']), int(request.form['starty']) )
+    goal_node  = ( int(request.form['endx']), int(request.form['endy']) )
+
+    # get the grid map and obstacles
+    processMap = ProcessMap( entry )
+    plannedPath= processMap.get_path( start_node, goal_node ) 
+
+    return jsonify(
+            success=True,
+            path=plannedPath,
+            message='Path planned'
+    )
+
 
 @app.route("/robot_commands", methods=["POST"])
 def robot_commands():

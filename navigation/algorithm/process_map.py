@@ -1,5 +1,6 @@
 import config as ENV
 from algorithm.explorer import Explorer
+from algorithm.algorithm import Algorithm
 
 class ProcessMap():
     def __init__(self, map_entry, resolution=40 ):
@@ -72,7 +73,9 @@ class ProcessMap():
 
     def get_path(self, start_point, end_point ):
         start_node = None
-        end_node   = None
+        goal_node   = None
+
+        print( start_point, end_point )
 
         map = self.get_map_grid()
         obstacles = self.get_known_obstacles()
@@ -89,5 +92,17 @@ class ProcessMap():
                 else:
                     if Explorer.within_range( obj, obstacles, self.resolution ):
                         obj.is_obstacle = True
-                        plt.plot( obj.x, obj.y, color="y", marker="p" )
 
+        # set the neighbours of the node
+        for row in map:
+            for obj in row:
+                neighbours = Explorer.get_neighbours( obj, map, self.resolution )
+                obj.neighbours = neighbours
+    
+        if start_node is None or goal_node is None:
+            return []
+
+        algo = Algorithm( map, start_node, goal_node, self.resolution )
+        algo.init()
+        algo.exec()
+        return algo.get_generated_path()
