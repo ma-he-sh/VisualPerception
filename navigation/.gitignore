@@ -1,0 +1,4 @@
+calibrations/*
+static/upload_dir/*
+database.db
+.idea

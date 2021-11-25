@@ -20,6 +20,7 @@ class RobotHandler():
         print( "======ROBOT INITIALIZE======" )
         try: 
             """
+            Initize the robot
             """
             self.bot.setup()
 
@@ -64,8 +65,6 @@ class RobotHandler():
             self.cam1.stop()
             self.cam2.stop()
             self.bot._io_cleanup()
-
-
 
 if __name__ == '__main__':
     #robotHandler = RobotHandler({}, camera_config)

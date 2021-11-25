@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Robot Env</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/main.css') }}">
+        <script src="{{ url_for('static', filename='assets/jquery-3.6.0.min.js')  }}"></script>
+    </head>
+    <body>
+        <div id="app_window">
+            <div class="app_wrapper">
+                <div class='a_header' data-toggle-id="upload_map">Upload Map</div>
+                <div class='a_body hidden_section' data-toggle-wrapper="upload_map">
+                    <div data-status='prompt_upload_status' class='a_status hidden'></div>
+                    <div class='a_upload'>
+                        <div class="a_section">
+                            <input placeholder="map width" type="text" name="map_width"/>
+                            <input placeholder="map height" type="text" name="map_height"/>
+                        </div>
+                        <form id='map_upload' action='' method='post' enctype='mutipart/form-data'>
+                            <input type='file' id='map' name='file'>
+                            <input type='button' class='button' id='upload_btn' value='upload'>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- show preview -->
+            <div class="app_preview_wrapper hidden_wrapper">
+                <div class="app_preview_header">
+                    <div class="app_preview_close" data-close-btn="close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </div>
+                </div>
+                <div id="preview_map"></div>
+            </div>
+            <!-- end -->
+
+            <div class="app_wrapper">
+                <div class="a_header" data-toggle-id="current_maps">Maps</div>
+                <div class="a_body hidden_section" data-toggle-wrapper="current_maps">
+                    <div class="a_maps">
+                        <div class="map_cards">
+                        {%for map in maps%}
+                            <div class="map_card">
+                                <div class="map_title">{{map.file_uuid}}</div>
+                                <div class="map_actions">
+                                    <div class="map_icons map_play" data-action="play" data-map-id="{{map.file_uuid}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-play"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    </div>
+                                    <div class="map_icons map_view" data-action="view" data-map-id="{{map.file_uuid}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </div>
+                                    <div class="map_icons map_delete" data-action="trash" data-map-id="{{map.file_uuid}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        {%endfor%}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="{{ url_for('static', filename='assets/main.js') }}"></script>
+    </body>
+</html>

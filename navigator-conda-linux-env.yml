@@ -1,0 +1,26 @@
+
+name: navigator
+
+dependencies:
+    - python=3.9
+    - pip>=19.0
+    - jupyter
+    - tensorflow
+    - scikit-learn
+    - scipy
+    - pandas
+    - pandas-datareader
+    - matplotlib
+    - pillow
+    - tqdm
+    - requests
+    - h5py
+    - pyyaml
+    - flask
+    - boto3
+    - opencv
+    - pip:
+        - bayesian-optimization
+        - gym
+        - kaggle
+        - python-dotenv
