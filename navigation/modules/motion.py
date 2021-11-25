@@ -4,6 +4,7 @@ from config import *
 from modules.errors import *
 import time
 import RPi.GPIO as GPIO
+import math
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
@@ -156,6 +157,89 @@ class Motion():
                 self.stop()
         else:
             pass
+   
+    def getTimePerDistance(self, _distance ):
+        """
+        _distance need to defined in cm
+        Based on the circumference of the wheel
+        C = 2 * PI * R
+        C = 2 * PI * ( d / 2 )
+        C = 2 * PI * 6.5
+        C = 20.42
+
+        It takes 0.43 seconds for 1 rev
+        time = ( _distance / C ) * 0.43
+        """
+
+        # @TODO need to tweak these
+        time_constant = 0.43 # per rev
+        wheel_diameter= 6.5  # in cm
+        speed         = 60   # speed need to be a constant
+
+        C = 2 * math.pi * ( wheel_diameter / 2 )
+        return speed, ( _distance / C ) * time_constant
+   
+    def driveRobot(self, _distance ):
+        # calculate total time need to travel
+        
+        dir = 1     # forward
+        if _distance < 0:
+            dir = 0 # backward
+
+        speed, calc_time = self.getTimePerDistance( abs(_distance) )
+
+        self._motorLeft(1, dir, speed )
+        self._motorRight(1, dir, speed )
+        
+        time.sleep( calc_time )
+
+    def moveForward(self, _distance):
+        # move forward given the distance
+        speed, calc_time = self.getTimePerDistance( _distance )
+
+        self._motorLeft( 1, 1, speed )
+        self._motorRight( 1, 1, speed )
+
+        time.slee( calc_time )
+
+    def moveBackward(self, _distance ):
+        # calculate total time need to travel
+        speed, calc_time = self.getTimePerDistance( _distance )
+
+        self._motorLeft(1, 0, speed )
+        self._motorRight(1, 0, speed )
+
+        time.sleep( calc_time )
+
+    def turnRight(self, speed, _time ):
+        self._motorLeft(1, 0, speed )
+        self._motorRight( 1, 1, speed )
+        time.sleep( _time )
+
+    def turnLeft(self, speed, _time ):
+        self._motorLeft(1, 1, speed )
+        self._motorRight( 1, 0, speed )
+        time.sleep( _time )
+
+    def turn90Left(self):
+        speed = 60
+        self.turnLeft( speed, 0.4 )
+
+    def turn45Left(self):
+        speed = 60
+        self.turnLeft( speed, 0.2 )
+   
+    def turn90Right(self):
+        speed = 60
+        self.turnRight( speed, 0.4 )
+
+    def turn45Right(self):
+        speed = 60
+        self.turnRight( speed, 0.2 )
+    
+    def turn180(self):
+        speed = 60
+        self.turnLeft( speed, 0.8 )
 
     def _io_cleanup(self):
         self.stop()

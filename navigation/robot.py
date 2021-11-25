@@ -68,14 +68,42 @@ class RobotHandler():
 
 
 if __name__ == '__main__':
-    robotHandler = RobotHandler({}, camera_config)
-    robotHandler.initialize()
+    #robotHandler = RobotHandler({}, camera_config)
+    #robotHandler.initialize()
 
 
 
 
 
-    # bot = motion.Motion()
+    bot = motion.Motion()
+    try:
+        bot.setup()
+
+
+        speed = 60
+        
+        #bot.turn90Left()
+        #bot.turn45Left()
+
+        bot.driveRobot( 100 )
+        bot.driveRobot( -100 )
+
+        #bot._motorLeft(1, 0 , speed)
+        #bot._motorRight( 1, 0, speed )
+        #time.sleep(0.43)
+        #bot._motorLeft(1, 1 , speed)
+        #bot._motorRight( 1, 1, speed )
+        #time.sleep(1)
+        #bot._motorLeft(1, 0 , speed)
+        #bot._motorRight( 1, 0, speed )
+
+        #bot.move( speed, 'forward', 'right', 90 )
+        #time.sleep(20)
+
+    except KeyboardInterrupt:
+        print('exiting');
+    finally:
+        bot._io_cleanup()
 
     # #camDevices = SrcAvailability()
     # #print( camDevices.getDeviceList() )
