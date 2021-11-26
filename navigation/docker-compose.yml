@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  redis:
+    image: redis
+    container_name: redis_cont
+    expose:
+      - 6379

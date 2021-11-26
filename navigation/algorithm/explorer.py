@@ -17,9 +17,9 @@ class Explorer():
             width += 1
 
         # prepare map pixel
-        for xi in range( 0, height ):
+        for xi in range( 0, width ):
             map.append([])
-            for yi in range( 0, width ):
+            for yi in range( 0, height ):
                 nodeObj = Node( node_index, xi * resolution, yi * resolution, resolution )
                 map[xi].append( nodeObj )
 
@@ -34,6 +34,8 @@ class Explorer():
         gray = cv2.cvtColor( localMap, cv2.COLOR_BGR2GRAY )
         gray_blured = cv2.blur( gray, (3, 3))
         obstacles = []
+
+        print( np.shape( gray ) )
 
         index = 0
         detected_circles = cv2.HoughCircles( gray_blured, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=1, maxRadius=40 )

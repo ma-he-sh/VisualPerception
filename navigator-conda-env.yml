@@ -20,6 +20,7 @@ dependencies:
     - boto3
     - opencv
     - pip:
+        - redis
         - tensorflow-macos==2.5.0
         - tensorflow-metal==0.1.2
         - bayesian-optimization

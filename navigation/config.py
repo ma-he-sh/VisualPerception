@@ -27,6 +27,8 @@ TIME_FOR_90  = float( ENV['TIME_FOR_90'] )
 TIME_FOR_45  = float( ENV['TIME_FOR_45'] )
 TIME_FOR_180 = float( ENV['TIME_FOR_180'] )
 
+DEV_MODE = int( ENV['DEV_MODE'] )
+
 STEREO_VISION = bool( int(ENV['STEREO_VISION']) == 1 )
 
 camera_config = {

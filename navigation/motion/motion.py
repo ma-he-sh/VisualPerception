@@ -37,10 +37,15 @@ class Motion():
     right_fw= 1
     right_bw= 0
 
-    def __init__(self, config={}):
+    def __init__(self, mode=0, config={}):
+        self.dev_mode = ( mode == 1 )
         pass
 
     def stop(self):
+        if self.dev_mode:
+            print('--stop--')
+            return
+
         self._stop_drive('A')
         self._stop_drive('B')
 
@@ -58,6 +63,10 @@ class Motion():
 
 
     def setup(self):
+        if self.dev_mode:
+            print('--demo mode setup--')
+            return 
+
         for var in ENV:
             if 'MOTOR' in var:
                 if int(ENV[var]) < 0:
@@ -87,6 +96,10 @@ class Motion():
             pass
         
     def _motorLeft(self, status, dir, speed):
+        if self.dev_mode:
+            print('---motor left--')
+            return
+
         """
         MotorLeft
         """
@@ -105,6 +118,10 @@ class Motion():
                 self.pwm_B.ChangeDutyCycle(speed)
 
     def _motorRight(self, status, dir, speed):
+        if self.dev_mode:
+            print('--motor right--')
+            return
+
         """
         MotorRight
         """
@@ -123,6 +140,10 @@ class Motion():
                 self.pwm_A.ChangeDutyCycle(speed)
 
     def move(self, speed, dir, turn, radius=0.6):
+        if self.dev_mode:
+            print('--move--')
+            return
+            
         """
         RobotDrive
         """
@@ -180,6 +201,10 @@ class Motion():
         return speed, ( _distance / C ) * time_constant
    
     def driveRobot(self, _distance ):
+        if self.dev_mode:
+            print('--drive robot--')
+            return
+
         # calculate total time need to travel
         
         dir = 1     # forward
@@ -194,6 +219,10 @@ class Motion():
         time.sleep( calc_time )
 
     def moveForward(self, _distance):
+        if self.dev_mode:
+            print('--move forward--')
+            return
+
         # move forward given the distance
         speed, calc_time = self.getTimePerDistance( _distance )
 
@@ -203,6 +232,10 @@ class Motion():
         time.sleep( calc_time )
 
     def moveBackward(self, _distance ):
+        if self.dev_mode:
+            print('--move backward--')
+            return
+
         # calculate total time need to travel
         speed, calc_time = self.getTimePerDistance( _distance )
 
@@ -212,32 +245,60 @@ class Motion():
         time.sleep( calc_time )
 
     def turnRight(self, speed, _time ):
+        if self.dev_mode:
+            print('--turn right--')
+            return
+
         self._motorLeft(1, 0, speed )
         self._motorRight( 1, 1, speed )
         time.sleep( _time )
 
     def turnLeft(self, speed, _time ):
+        if self.dev_mode:
+            print('--turn left--')
+            return
+
         self._motorLeft(1, 1, speed )
         self._motorRight( 1, 0, speed )
         time.sleep( _time )
 
     def turn90Left(self):
+        if self.dev_mode:
+            print('--turn 90 left--')
+            return
+
         speed = ROBOT_SPEED
         self.turnLeft( speed, TIME_FOR_90 )
 
     def turn45Left(self):
+        if self.dev_mode:
+            print('--turn 45 left--')
+            return
+
         speed = ROBOT_SPEED
         self.turnLeft( speed, TIME_FOR_45 )
    
     def turn90Right(self):
+        if self.dev_mode:
+            print('--turn 90 right--')
+            return
+
         speed = ROBOT_SPEED
         self.turnRight( speed, TIME_FOR_90 )
 
     def turn45Right(self):
+        if self.dev_mode:
+            print('--turn 45 right--')
+            return
+
         speed = ROBOT_SPEED
         self.turnRight( speed, TIME_FOR_45 )
     
     def turn180(self):
+        if self.dev_mode:
+            print('--turn 180 --')
+            return
+
         speed = ROBOT_SPEED
         self.turnLeft( speed, TIME_FOR_180 )
 

@@ -154,7 +154,7 @@ function getReq( url, data, callback ) {
 		paper_bgcolor: 'rgb(0, 0, 0)',
 		plot_bgcolor: 'rgb(0, 0, 0)',
 		autosize: true,
-		height: 800,
+		height: 1080,
 		showlegend: false,
 	};
 	Plotly.newPlot('grid_map', data, layout);
@@ -230,7 +230,7 @@ function getReq( url, data, callback ) {
 		paper_bgcolor: 'rgb(0, 0, 0)',
 		plot_bgcolor: 'rgb(0, 0, 0)',
 		autosize: true,
-		height: 800,
+		height: 600,
 		showlegend: false,
 	};
 	var data2 = [path_points, obstacles2, goal_points, solution_path ];

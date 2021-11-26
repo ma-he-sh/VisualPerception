@@ -6,6 +6,7 @@ from modules.helpers import allowed_file, get_new_filename
 import config as ENV
 from modules.database import DB
 from modules.planner import SrcImage, Planner
+from mem_db.memdb import MemDB
 import json
 import base64
 
@@ -13,9 +14,10 @@ import base64
 db = DB()
 db.create_tables()
 
+memRedis = MemDB()
+
 app = Flask( __name__ )
 app.config['UPLOAD_FOLDER'] = ENV.UPLOAD_FOLDER
- 
 
 @app.route("/")
 def main():
@@ -190,6 +192,11 @@ def set_robot_goals():
 
 @app.route("/robot_commands", methods=["POST"])
 def robot_commands():
+    pass
+
+@app.route("/robot_status", methods=["POST"])
+def robot_status():
+    print('robot status')
     pass
 
 @app.route("/test")
