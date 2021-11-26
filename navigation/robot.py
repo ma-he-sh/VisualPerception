@@ -81,11 +81,19 @@ if __name__ == '__main__':
 
         speed = 60
         
+        #bot._motorLeft(1, 0, speed )
+        #bot._motorRight(1, 0, speed )
+        #time.sleep( 0.65 )
+
+
         #bot.turn90Left()
         #bot.turn45Left()
+        #bot.turn180()
 
-        bot.driveRobot( 100 )
-        bot.driveRobot( -100 )
+        bot.turn180()
+
+        #bot.driveRobot( 1 )
+        #bot.driveRobot( -100 )
 
         #bot._motorLeft(1, 0 , speed)
         #bot._motorRight( 1, 0, speed )

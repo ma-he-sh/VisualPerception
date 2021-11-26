@@ -19,6 +19,14 @@ CAM_RT_SRC = int( ENV['CAM_RT_SRC'] )
 CAM_LT_ANGLE = int( ENV['CAM_LT_ANGLE'] )
 CAM_RT_ANGLE = int( ENV['CAM_RT_ANGLE'] )
 
+WHEEL_DIAMETER= float( ENV['WHEEL_DIAMETER'] )
+ROBOT_SPEED   = float( ENV['ROBOT_SPEED'] )
+
+TIME_FOR_REV = float( ENV['TIME_FOR_REV'] )
+TIME_FOR_90  = float( ENV['TIME_FOR_90'] )
+TIME_FOR_45  = float( ENV['TIME_FOR_45'] )
+TIME_FOR_180 = float( ENV['TIME_FOR_180'] )
+
 STEREO_VISION = bool( int(ENV['STEREO_VISION']) == 1 )
 
 camera_config = {

@@ -172,9 +172,9 @@ class Motion():
         """
 
         # @TODO need to tweak these
-        time_constant = 0.43 # per rev
-        wheel_diameter= 6.5  # in cm
-        speed         = 60   # speed need to be a constant
+        time_constant = TIME_FOR_REV # per rev
+        wheel_diameter= WHEEL_DIAMETER# in cm
+        speed         = ROBOT_SPEED   # speed need to be a constant
 
         C = 2 * math.pi * ( wheel_diameter / 2 )
         return speed, ( _distance / C ) * time_constant
@@ -200,7 +200,7 @@ class Motion():
         self._motorLeft( 1, 1, speed )
         self._motorRight( 1, 1, speed )
 
-        time.slee( calc_time )
+        time.sleep( calc_time )
 
     def moveBackward(self, _distance ):
         # calculate total time need to travel
@@ -222,24 +222,24 @@ class Motion():
         time.sleep( _time )
 
     def turn90Left(self):
-        speed = 60
-        self.turnLeft( speed, 0.4 )
+        speed = ROBOT_SPEED
+        self.turnLeft( speed, TIME_FOR_90 )
 
     def turn45Left(self):
-        speed = 60
-        self.turnLeft( speed, 0.2 )
+        speed = ROBOT_SPEED
+        self.turnLeft( speed, TIME_FOR_45 )
    
     def turn90Right(self):
-        speed = 60
-        self.turnRight( speed, 0.4 )
+        speed = ROBOT_SPEED
+        self.turnRight( speed, TIME_FOR_90 )
 
     def turn45Right(self):
-        speed = 60
-        self.turnRight( speed, 0.2 )
+        speed = ROBOT_SPEED
+        self.turnRight( speed, TIME_FOR_45 )
     
     def turn180(self):
-        speed = 60
-        self.turnLeft( speed, 0.8 )
+        speed = ROBOT_SPEED
+        self.turnLeft( speed, TIME_FOR_180 )
 
     def _io_cleanup(self):
         self.stop()
