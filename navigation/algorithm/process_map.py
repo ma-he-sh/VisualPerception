@@ -23,6 +23,8 @@ class ProcessMap():
         self.map_size  = ( self.file_width, self.file_height )
         self.resolution= resolution
         self.total_node_pixels = self.file_width * self.file_height
+        self.proposed_path = []
+        self.path_available= False
 
     def get_map_src(self):
         return ENV.UPLOAD_FOLDER + '/' + self.file_uuid + self.file_ext
@@ -105,4 +107,87 @@ class ProcessMap():
         algo = Algorithm( map, start_node, goal_node, self.resolution )
         algo.init()
         algo.exec()
-        return algo.get_generated_path()
+        self.proposed_path = algo.get_generated_path()
+        self.path_available= True
+        return self.proposed_path
+
+    def _calc_slope(self, p1, p2):
+        if ( p1[0] - p2[0] == 0 ): return 0
+        return (float)(p2[1] - p1[1]) / (p2[0] - p1[0])
+    
+    def get_planned_motion(self):
+        if not self.path_available:
+            return []
+
+        linear_motion = []
+        path = self.proposed_path[::-1]
+        # if len(path) > 2:
+        #     main_index = 0
+
+        #     completed = []
+
+        #     coord1 = path[1]
+        #     coord2 = path[main_index]
+        #     slope = self._calc_slope( coord1, coord2 )
+        
+        #     completed.append( coord1 )
+
+        #     pre_slope = slope
+        #     for i, x in enumerate(path):
+        #         coord1 = path[i]
+        #         coord2 = path[main_index]
+
+        #         slope = self._calc_slope( coord1, coord2 )
+        #         if pre_slope != slope:
+        #             print('new slope')
+        #         else:
+        #             pre_slope = slope
+
+
+        #         print( slope )
+
+        if len(path) > 2:
+            main_index = 0
+
+            completed = {}
+            start = path[0]
+            end   = path[len(path) - 1]
+            
+            index = 0
+            cursor= 0
+            pre_slope = 0
+            end_reach = False
+            while not end_reach:
+
+                coord1 = path[cursor]
+                coord2 = path[index]
+                slope = self._calc_slope( coord1, coord2 )
+
+                if coord2[1] == coord1[1]:
+                    print('straight y axis')
+
+                if coord2[0] == coord1[0]:
+                    print('straight x axis')
+
+                if pre_slope != slope:
+                    if slope < 0:
+                        print('-1 slope')
+                    else:
+                        print('+ slope')
+
+                    pre_slope = slope
+                    # set new joint
+                    cursor = index - 1
+                    index = index - 1
+
+                completed.setdefault(slope, 0)
+                completed[slope] += 1
+                print(slope)
+
+                index += 1
+                if index == len(path):
+                    end_reach = True
+
+            print( completed )
+
+
