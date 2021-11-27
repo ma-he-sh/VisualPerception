@@ -1,4 +1,5 @@
 import config as ENV
+import math
 from algorithm.explorer import Explorer
 from algorithm.algorithm import Algorithm
 
@@ -114,37 +115,20 @@ class ProcessMap():
     def _calc_slope(self, p1, p2):
         if ( p1[0] - p2[0] == 0 ): return 0
         return (float)(p2[1] - p1[1]) / (p2[0] - p1[0])
-    
+
+    def _cal_angle_vector(self, x, y):
+        return math.degrees(math.atan2(-y, x))
+
+    def _cal_angle(self, p1, p2):
+        return self._cal_angle_vector( p2[0] - p1[0], p2[1] - p1[1] )
+
     def get_planned_motion(self):
         if not self.path_available:
             return []
 
         linear_motion = []
         path = self.proposed_path[::-1]
-        # if len(path) > 2:
-        #     main_index = 0
-
-        #     completed = []
-
-        #     coord1 = path[1]
-        #     coord2 = path[main_index]
-        #     slope = self._calc_slope( coord1, coord2 )
-        
-        #     completed.append( coord1 )
-
-        #     pre_slope = slope
-        #     for i, x in enumerate(path):
-        #         coord1 = path[i]
-        #         coord2 = path[main_index]
-
-        #         slope = self._calc_slope( coord1, coord2 )
-        #         if pre_slope != slope:
-        #             print('new slope')
-        #         else:
-        #             pre_slope = slope
-
-
-        #         print( slope )
+        self.proposed_path = []
 
         if len(path) > 2:
             main_index = 0
@@ -156,17 +140,22 @@ class ProcessMap():
             index = 0
             cursor= 0
             pre_slope = 0
+            distance  = 0
             end_reach = False
             while not end_reach:
 
                 coord1 = path[cursor]
                 coord2 = path[index]
                 slope = self._calc_slope( coord1, coord2 )
+                angle = self._cal_angle( coord1, coord2 )
+                distance += 1
 
                 if coord2[1] == coord1[1]:
+                    print(distance)
                     print('straight y axis')
 
                 if coord2[0] == coord1[0]:
+                    print(distance)
                     print('straight x axis')
 
                 if pre_slope != slope:
@@ -174,6 +163,8 @@ class ProcessMap():
                         print('-1 slope')
                     else:
                         print('+ slope')
+
+                    print(distance)
 
                     pre_slope = slope
                     # set new joint
