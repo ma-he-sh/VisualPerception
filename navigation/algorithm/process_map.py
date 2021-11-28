@@ -3,6 +3,12 @@ import math
 from algorithm.explorer import Explorer
 from algorithm.algorithm import Algorithm
 
+MOTION_DEFAULT   = 0
+MOTION_STAIGHT_Y = 1
+MOTION_STRAIGN_X = 2
+MOTION_STRAIGN_POS_SLOPE = 3
+MOTION_STRAIGN_NEG_SLOPE = 4
+
 class ProcessMap():
     def __init__(self, map_entry, resolution=40 ):
         self.map_entry = map_entry
@@ -25,6 +31,7 @@ class ProcessMap():
         self.resolution= resolution
         self.total_node_pixels = self.file_width * self.file_height
         self.proposed_path = []
+        self.motion_path   = []
         self.path_available= False
 
     def get_map_src(self):
@@ -126,14 +133,17 @@ class ProcessMap():
         if not self.path_available:
             return []
 
-        linear_motion = []
+        completed = {}
         path = self.proposed_path[::-1]
-        self.proposed_path = []
+
+        self.motion_path = {}
+        curr_motion_index  = MOTION_DEFAULT
+        prev_motion_index  = MOTION_DEFAULT
+        action_index = 0
+
+        prev_angle = 0
 
         if len(path) > 2:
-            main_index = 0
-
-            completed = {}
             start = path[0]
             end   = path[len(path) - 1]
             
@@ -142,43 +152,84 @@ class ProcessMap():
             pre_slope = 0
             distance  = 0
             end_reach = False
+
+            curr_data = {}
+
             while not end_reach:
 
                 coord1 = path[cursor]
                 coord2 = path[index]
                 slope = self._calc_slope( coord1, coord2 )
                 angle = self._cal_angle( coord1, coord2 )
-                distance += 1
+
+                #print(angle)
 
                 if coord2[1] == coord1[1]:
-                    print(distance)
-                    print('straight y axis')
+                    #print(distance)
+                    #print('straight y axis')
+                    curr_motion_index = MOTION_STAIGHT_Y
 
                 if coord2[0] == coord1[0]:
-                    print(distance)
-                    print('straight x axis')
+                    #print(distance)
+                    #print('straight x axis')
+                    curr_motion_index = MOTION_STRAIGN_X
 
                 if pre_slope != slope:
                     if slope < 0:
-                        print('-1 slope')
+                        #print('-1 slope')
+                        curr_motion_index = MOTION_STRAIGN_NEG_SLOPE
                     else:
-                        print('+ slope')
-
-                    print(distance)
+                        #print('+ slope')
+                        curr_motion_index = MOTION_STRAIGN_POS_SLOPE
 
                     pre_slope = slope
                     # set new joint
                     cursor = index - 1
                     index = index - 1
 
+                # if curr_motion_index != prev_motion_index:
+                #     prev_motion_index = curr_motion_index
+
+                #     print( curr_data )
+
+                #     curr_data['distance'] = distance
+                #     self.motion_path[action_index] = curr_data
+                    
+                #     action_index += 1
+                #     distance = 0 # reset distance counter
+                # else:
+                #     # --- same motion
+                #     self.motion_path.setdefault( action_index, {} )
+                #     curr_data = {
+                #         'angle':angle,
+                #         'distance': 0,
+                #     }
+
+                #     print('same_motion')
+                #     print( angle )
+                #     print( distance )
+
+                if prev_angle != angle:
+                    prev_angle = angle # set the prev as current
+                    print(curr_data)
+                    distance = 0
+                else:
+                    #print('same angle')
+                    distance+=1
+                    curr_data = {
+                        'angle': angle,
+                        'distance': distance
+                    }
+
+
                 completed.setdefault(slope, 0)
                 completed[slope] += 1
-                print(slope)
 
                 index += 1
                 if index == len(path):
                     end_reach = True
 
             print( completed )
+            print( self.motion_path )
 
 
