@@ -133,21 +133,35 @@ class ProcessMap():
         return math.sqrt( math.pow( ( p2[0] - p1[0] ), 2 ) + math.pow( (p2[1] - p1[1]), 2 ) )
 
     def _cal_angle_diff(self, prev_angle, new_angle ):
+        print( "here>>", prev_angle, new_angle )
         if prev_angle == 0:
             diff = new_angle
         else:
             if prev_angle > 0:
                 # already left turned
                 if new_angle > 0:
-                    diff = -new_angle
+                    print( 'prev_angle > 0 new_angle > 0' )
+                    diff = ( new_angle - prev_angle )
                 else:
-                    diff = ( 0 - prev_angle ) - ( new_angle )
+                    print('prev_angle > 0 new_angle < 0')
+                    diff = ( 0 - prev_angle ) + ( new_angle )
+                    if diff > 180:
+                        diff = 360 - diff
+                    elif diff < -180:
+                        diff = 360 + diff
             else:
+                print('here', new_angle, prev_angle)
                 # already right turned
                 if new_angle > 0:
-                    diff = ( 0 - prev_angle ) + ( new_angle )
+                    print( 'prev_angle < 0 new_angle > 0' )
+                    diff = ( new_angle  - prev_angle)
                 else:
-                    diff = new_angle
+                    print( 'prev_angle > 0 new_angle < 0' )
+                    diff = ( 0 - prev_angle ) + ( new_angle )
+                    if diff > 180:
+                        diff = 360 - diff
+                    elif diff < -180:
+                        diff = 360 + diff
 
         print( 'diff=', diff )
         return diff
@@ -208,9 +222,9 @@ class ProcessMap():
 
                 turn_dir = '_no_turn'
                 if angle_diff > 0:
-                    turn_dir = "_left"
-                elif angle_diff < 0:
                     turn_dir = "_right"
+                elif angle_diff < 0:
+                    turn_dir = "_left"
                 elif angle_diff == 0:
                     turn_dir = "_no_turn"
 

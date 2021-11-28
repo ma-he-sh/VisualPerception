@@ -82,6 +82,7 @@ input[type=text], input[type=number] {
     padding: 10px 10px 10px 10px;
     box-sizing: border-box;
     display: flex;
+    margin-bottom: 10px;
 }
 
 #app_window .motion_plan_wrapper .planned_path .path_from,
