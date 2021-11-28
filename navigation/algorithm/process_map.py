@@ -129,107 +129,105 @@ class ProcessMap():
     def _cal_angle(self, p1, p2):
         return self._cal_angle_vector( p2[0] - p1[0], p2[1] - p1[1] )
 
+    def _cal_distance(self, p1, p2):
+        return math.sqrt( math.pow( ( p2[0] - p1[0] ), 2 ) + math.pow( (p2[1] - p1[1]), 2 ) )
+
+    def _cal_angle_diff(self, prev_angle, new_angle ):
+        if prev_angle == 0:
+            diff = new_angle
+        else:
+            if prev_angle > 0:
+                # already left turned
+                if new_angle > 0:
+                    diff = -new_angle
+                else:
+                    diff = ( 0 - prev_angle ) - ( new_angle )
+            else:
+                # already right turned
+                if new_angle > 0:
+                    diff = ( 0 - prev_angle ) + ( new_angle )
+                else:
+                    diff = new_angle
+
+        print( 'diff=', diff )
+        return diff
+        
+
     def get_planned_motion(self):
         if not self.path_available:
             return []
 
-        completed = {}
         path = self.proposed_path[::-1]
 
-        self.motion_path = {}
-        curr_motion_index  = MOTION_DEFAULT
-        prev_motion_index  = MOTION_DEFAULT
-        action_index = 0
-
-        prev_angle = 0
-
         if len(path) > 2:
-            start = path[0]
-            end   = path[len(path) - 1]
-            
+            end_node  = path[len(path) - 1]
+
+            curr_angle = 0
+            total_distance= 0
+            distance      = 0
+
+            visited_node = [] # visited node
+            visiting_node = path[0]
+
             index = 0
-            cursor= 0
-            pre_slope = 0
-            distance  = 0
-            end_reach = False
+            end_reached = False
+            while not end_reached:
+                cursor_node = path[index]
 
-            curr_data = {}
+                slope = self._calc_slope( visiting_node, cursor_node )
+                angle = self._cal_angle( visiting_node, cursor_node )
 
-            while not end_reach:
+                if curr_angle != angle:
+                    #node_points.append( visiting_node )
+                    #print('node_found')
+                    curr_angle = angle
 
-                coord1 = path[cursor]
-                coord2 = path[index]
-                slope = self._calc_slope( coord1, coord2 )
-                angle = self._cal_angle( coord1, coord2 )
+                    # store change point
+                    visited_node.append( visiting_node )
 
-                #print(angle)
-
-                if coord2[1] == coord1[1]:
-                    #print(distance)
-                    #print('straight y axis')
-                    curr_motion_index = MOTION_STAIGHT_Y
-
-                if coord2[0] == coord1[0]:
-                    #print(distance)
-                    #print('straight x axis')
-                    curr_motion_index = MOTION_STRAIGN_X
-
-                if pre_slope != slope:
-                    if slope < 0:
-                        #print('-1 slope')
-                        curr_motion_index = MOTION_STRAIGN_NEG_SLOPE
-                    else:
-                        #print('+ slope')
-                        curr_motion_index = MOTION_STRAIGN_POS_SLOPE
-
-                    pre_slope = slope
-                    # set new joint
-                    cursor = index - 1
-                    index = index - 1
-
-                # if curr_motion_index != prev_motion_index:
-                #     prev_motion_index = curr_motion_index
-
-                #     print( curr_data )
-
-                #     curr_data['distance'] = distance
-                #     self.motion_path[action_index] = curr_data
-                    
-                #     action_index += 1
-                #     distance = 0 # reset distance counter
-                # else:
-                #     # --- same motion
-                #     self.motion_path.setdefault( action_index, {} )
-                #     curr_data = {
-                #         'angle':angle,
-                #         'distance': 0,
-                #     }
-
-                #     print('same_motion')
-                #     print( angle )
-                #     print( distance )
-
-                if prev_angle != angle:
-                    prev_angle = angle # set the prev as current
-                    print(curr_data)
-                    distance = 0
-                else:
-                    #print('same angle')
-                    distance+=1
-                    curr_data = {
-                        'angle': angle,
-                        'distance': distance
-                    }
-
-
-                completed.setdefault(slope, 0)
-                completed[slope] += 1
-
+                total_distance += 1
                 index += 1
-                if index == len(path):
-                    end_reach = True
 
-            print( completed )
-            print( self.motion_path )
+                if cursor_node == end_node:
+                    end_reached = True
+                else:
+                    visiting_node = cursor_node
 
+            visited_node.append( end_node )
 
+            init_angle = 0
+            curr_node = visited_node[0]
+            for i, x in enumerate(visited_node):
+                next_node = visited_node[i]
+
+                angle    = self._cal_angle( curr_node, next_node )
+                distance = self._cal_distance( curr_node, next_node )
+                slope    = self._calc_slope(  curr_node, next_node)
+
+                angle_diff = self._cal_angle_diff( init_angle, angle )
+
+                turn_dir = '_no_turn'
+                if angle_diff > 0:
+                    turn_dir = "_left"
+                elif angle_diff < 0:
+                    turn_dir = "_right"
+                elif angle_diff == 0:
+                    turn_dir = "_no_turn"
+
+                self.motion_path.append({
+                    'from'  : curr_node,
+                    'to'    : next_node,
+                    'angle' : angle_diff,
+                    'distance' : distance,
+                    'turn'  : turn_dir
+                })
+                print( 'distance=', distance, ' angle=', angle, ' slope=', slope )
+
+                curr_node = next_node
+                init_angle = angle
+
+            #print( visited_node )
+            #print( self.motion_path )
+        return self.motion_path
+
+            

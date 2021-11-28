@@ -191,7 +191,7 @@ function getReq( url, data, callback ) {
 		x:obstacle_rows['x'], y: obstacle_rows['y'],
 		mode: 'markers',
 		marker: {
-			size: 4,
+			size: 10,
 			line: {
 				color: 'rgba(255, 217, 217, 0.14)',
 				width: 1,
@@ -207,7 +207,7 @@ function getReq( url, data, callback ) {
 			size: 2,
 			line: {
 				color: 'rgba(255, 217, 217, 0.14)',
-				width: 1,
+				width: 10,
 			},
 			opacity: 1,
 		},
@@ -250,6 +250,28 @@ function getReq( url, data, callback ) {
 		plot.on('plotly_click', on_node_click);
 	}
 
+	// render motion plan
+	function render_motion_plan( motion_plan=[] ) {
+		$('.motion_plan_wrapper').html();
+		if (motion_plan.length > 0){
+			motion_plan.forEach(function( pos, index ) {
+				var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-circle"><circle cx="12" cy="12" r="10"></circle></svg>';
+				if (pos.turn == "_left") {
+					svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 8 12 12 16"></polyline><line x1="16" y1="12" x2="8" y2="12"></line></svg>';
+				} else if ( pos.turn == "_right" ) {
+					svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>';
+				}
+				$('.motion_plan_wrapper').append(`<div class="planned_path">
+					<div class="path_from">${pos.from}</div>
+					<div class="path_to">${pos.to}</div>
+					<div class="path_distance">Distance: ${pos.distance} cm</div>
+					<div class="path_angle">Angle: ${pos.angle} degree (${pos.turn})</div>
+					<div class="path_turn">${svg}</div>
+					</div>`)
+			});
+		}
+	}
+
 	// submit start and goal point
 	$(document).on('click', '[data-action]', function() {
 		if (goals == undefined) {
@@ -269,7 +291,6 @@ function getReq( url, data, callback ) {
 		postReq("/set_robot_goals", data, function(resp) {
 			if( resp.success ) {
 				var path = resp.path;
-				console.log( path );
 				if( path.length > 0 ) {
 					path.forEach( function( point, index ) {
 						solution['x'].push( point[0] );
@@ -283,6 +304,9 @@ function getReq( url, data, callback ) {
 					Plotly.newPlot( "path_map", data2, layout2 );
 					plot.removeEventListener('plotly_click', on_node_click );
 					plot.on('plotly_click', on_node_click );
+
+					// render motion plan
+					render_motion_plan( resp.motion );
 				}
 			} else {
 				console.error( resp );

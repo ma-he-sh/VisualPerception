@@ -182,11 +182,12 @@ def set_robot_goals():
     # get the grid map and obstacles
     processMap = ProcessMap( entry )
     plannedPath= processMap.get_path( start_node, goal_node )
-    plannedMotion=processMap.get_planned_motion()
+    planned_motion=processMap.get_planned_motion()
 
     return jsonify(
             success=True,
             path=plannedPath,
+            motion=planned_motion,
             message='Path planned'
     )
 
