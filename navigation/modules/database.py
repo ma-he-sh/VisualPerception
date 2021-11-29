@@ -52,6 +52,15 @@ class DB():
             file_height text
         )''')
         conn.commit()
+
+        conn.execute('''CREATE TABLE IF NOT EXISTS positions (
+            ID integer primary key,
+            map_id      text,
+            meta_key    text,
+            meta_value  text
+        )''')
+        conn.commit()
+
         conn.close()
 
     def get_entry(self, file_uuid):
@@ -61,6 +70,44 @@ class DB():
         if row is None:
             return False
         return row
+
+    def reset_map_positions(self, map_id):
+        conn = self.get_db_connection()
+        conn.execute('DELETE FROM positions WHERE map_id="'+map_id+'"')
+        conn.commit()
+        conn.close()
+
+    def set_robot_position(self, map_id, robot_pos ):
+        conn = self.get_db_connection()
+        c = conn.cursor()
+        c.execute("INSERT INTO positions( map_id, meta_key, meta_value ) VALUES ( ?, ?, ? )", ( map_id, '_position', str(robot_pos) ))
+        conn.commit()
+        conn.close()
+
+    def set_obstacles(self, map_id, obstacle_pos ):
+        conn = self.get_db_connection()
+        c = conn.cursor()
+        c.execute("INSERT INTO positions( map_id, meta_key, meta_value ) VALUES ( ?, ?, ? )", ( map_id, '_obstacle', str(obstacle_pos) ))
+        conn.commit()
+        conn.close()
+
+    def get_obstacles(self, map_id):
+        obstacles = []
+        conn = self.get_db_connection()
+        rows = conn.execute( 'SELECT * FROM positions WHERE meta_key="_obstacle" AND map_id="'+map_id+'"').fetchall()
+        for obs in rows:
+            pos = eval( obs['meta_value'] )
+            if pos:
+                obstacles.append( pos )
+        return obstacles
+
+    def get_robot_position(self, map_id):
+        conn = self.get_db_connection();
+        row = conn.execute('SELECT * FROM positions WHERE map_id="'+map_id+'" AND meta_key="_position";').fetchone()
+        conn.close()
+        if row is None:
+            return []
+        return eval(row['meta_value'])
 
     def delete_entry(self, file_uuid):
         conn = self.get_db_connection()

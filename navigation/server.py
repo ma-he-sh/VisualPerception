@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
+from numpy import add
 from werkzeug.utils import secure_filename
 import os
 from algorithm.process_map import ProcessMap
@@ -166,6 +167,9 @@ def set_robot_goals():
     if 'map_id' not in request.form:
         ready = False
 
+    # if has a history of obstacle take descition to clear data or not
+    clearObstacles = False
+
     if not ready:
         return jsonify(
                 error=True,
@@ -179,8 +183,21 @@ def set_robot_goals():
     start_node = ( int(request.form['startx']), int(request.form['starty']) )
     goal_node  = ( int(request.form['endx']), int(request.form['endy']) )
 
+    if 'reset_obstacles' in request.form:
+        clearObstacles = bool( int( request.form['reset_obstacles'] ) == 1 )
+
+    additional_obstacles = []
+
+    # reset obstacle postions
+    if clearObstacles:
+        db.reset_map_positions( file_uuid )
+    else:
+        additional_obstacles = db.get_obstacles( file_uuid )
+
+    print(additional_obstacles)
+
     # get the grid map and obstacles
-    processMap = ProcessMap( entry )
+    processMap = ProcessMap( entry, additional_obs=additional_obstacles )
     plannedPath= processMap.get_path( start_node, goal_node )
     planned_motion=processMap.get_planned_motion()
 
@@ -192,14 +209,55 @@ def set_robot_goals():
     )
 
 
+@app.route("/set_robot_pos", methods=["POST"])
+def set_robot_pos():
+    ready = True
+    if 'robot_x' not in request.form:
+        ready = False
+    if 'robot_y' not in request.form:
+        ready = False
+    if 'map_id' not in request.form:
+        ready = False
+    
+    if not ready:
+        return jsonify(
+            error=True,
+            message='Pos not recieved'
+        )
+
+    file_uuid = request.form['map_id']
+    robot_pos = ( int( request.form['robot_x']), int( request.form['robot_y'] ) )
+    db.reset_map_positions( file_uuid ) # remove current robot pos
+    db.set_robot_position( file_uuid, robot_pos )
+
+    has_obstacle = False
+    if 'obs_x' in request.form and 'obs_y' in request.form:
+        has_obstacle = True
+
+    if has_obstacle:
+        obstacle  = ( int( request.form['obs_x']), int( request.form['obs_y'] ) )
+        db.set_obstacles( file_uuid, obstacle )
+
+    return jsonify(
+        error=False,
+        message='Robot position set'
+    )
+
 @app.route("/robot_commands", methods=["POST"])
 def robot_commands():
     pass
 
-@app.route("/robot_status", methods=["POST"])
+@app.route("/robot_status", methods=["GET"])
 def robot_status():
-    print('robot status')
-    pass
+    file_uuid = request.args['map_id']
+    robot_pos = db.get_robot_position( file_uuid )
+    obstacle_pos = db.get_obstacles( file_uuid )
+    
+    return jsonify(
+        success=True,
+        robot_pos=robot_pos,
+        obstacle_pos=obstacle_pos
+    )
 
 @app.route("/test")
 def test():

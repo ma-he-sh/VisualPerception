@@ -10,7 +10,7 @@ MOTION_STRAIGN_POS_SLOPE = 3
 MOTION_STRAIGN_NEG_SLOPE = 4
 
 class ProcessMap():
-    def __init__(self, map_entry, resolution=40 ):
+    def __init__(self, map_entry, resolution=40, additional_obs=[] ):
         self.map_entry = map_entry
         self.map_id    = self.map_entry[0]
         self.file_uuid = self.map_entry[1]
@@ -19,6 +19,7 @@ class ProcessMap():
         self.file_ext  = self.map_entry[4]
         self.file_width= int( self.map_entry[5] )
         self.file_height=int( self.map_entry[6] )
+        self.additional_obs = additional_obs
  
         self.file_map_image = self.get_map_src()
 
@@ -90,6 +91,11 @@ class ProcessMap():
         map = self.get_map_grid()
         obstacles = self.get_known_obstacles()
 
+        # add new found obstacles
+        if len(self.additional_obs) > 0:
+            for obs in self.additional_obs:
+                obstacles.append(obs)
+
         # define goal and obstacles
         for row in map:
             for obj in row:
@@ -143,7 +149,7 @@ class ProcessMap():
                     print( 'prev_angle > 0 new_angle > 0' )
                     diff = ( new_angle - prev_angle )
                 else:
-                    print('prev_angle > 0 new_angle < 0')
+                    print('prev_angle < 0 new_angle < 0')
                     diff = ( 0 - prev_angle ) + ( new_angle )
                     if diff > 180:
                         diff = 360 - diff

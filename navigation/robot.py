@@ -61,7 +61,7 @@ class RobotHandler():
         except SrcNotFound as ex:
             print( '<< ' + ex + ' >>' )
         except ThrowPinNotConfigured:
-            print( '<< Motor pins are defined  >>' )
+            print( '<< Motor pins are not defined  >>' )
         except KeyboardInterrupt:
             print( '<< Interrupted by keyboard >>' )
         finally:

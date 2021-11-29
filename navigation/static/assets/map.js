@@ -79,6 +79,9 @@ function getReq( url, data, callback ) {
 
 (function($) {
     console.log( 'server loaded' );
+	var map_timer;
+	var global_map_id;
+	var global_end_goal;
 
 	var goals = {
 		'x': [],
@@ -90,6 +93,19 @@ function getReq( url, data, callback ) {
 		'y': [],
 		'z': []
 	}
+
+	var robot_pos = {
+		'x': [],
+		'y': [],
+		'z': [],
+	}
+
+	var new_obstacles = {
+		'x': [],
+		'y': [],
+		'z': [],
+	}
+
 	var mapHandler = new MapHandler( grid_pos, obstacle_pos )
 	grid_rows = mapHandler.get_grid_map();
 	obstacle_rows = mapHandler.get_obstacle_map();
@@ -213,6 +229,35 @@ function getReq( url, data, callback ) {
 		},
 		type: 'line'
 	}
+	//======================
+	// robot position handle
+	var curr_robot_pos = {
+		x:robot_pos['x'], y: robot_pos['y'],
+		mode: 'markers',
+		marker: {
+			size: 20,
+			line: {
+				color: 'rgba(255, 0, 0, 0.14)',
+				width: 1,
+			},
+			opacity: 1
+		},
+		type: 'scatter'
+	}
+	var new_obstacles_pos = {
+		x:new_obstacles['x'], y: new_obstacles['y'],
+		mode: 'markers',
+		marker: {
+			size: 20,
+			line: {
+				color: 'rgba(0, 217, 217, 0.14)',
+				width: 1,
+			},
+			opacity: 1
+		},
+		type: 'scatter'
+	}
+	// =====================
 	var layout2 = {
 		margin: {
 			l: 0,
@@ -233,7 +278,7 @@ function getReq( url, data, callback ) {
 		height: 600,
 		showlegend: false,
 	};
-	var data2 = [path_points, obstacles2, goal_points, solution_path ];
+	var data2 = [path_points, obstacles2, goal_points, solution_path, curr_robot_pos, new_obstacles_pos ];
 	Plotly.newPlot('path_map', data2, layout2);
 
 	// click handler
@@ -248,6 +293,97 @@ function getReq( url, data, callback ) {
 		Plotly.newPlot("path_map", data2, layout2); 
 		plot.removeEventListener('plotly_click', on_node_click);
 		plot.on('plotly_click', on_node_click);
+	}
+
+	// obstacle validate already synced
+	function new_obstacle_synced( obstacle_pos ) {
+		console.log('sync check');
+		var obs_len =  new_obstacles['x'].length;
+		var new_obs_len = obstacle_pos.length;
+
+		var data_synced = (obs_len == new_obs_len);
+		return data_synced;
+	}
+
+	var rest_requesting = false;
+	// start pinging for status
+	function get_latest_status() {
+		if( rest_requesting ) return;
+
+		console.log('start ping', global_map_id );
+		var data = {
+			map_id: global_map_id,
+		}
+		rest_requesting = true;
+		getReq("/robot_status", data, function(resp){
+			rest_requesting = false;
+			if( resp.success ) {
+				var obstacle_pos = resp.obstacle_pos;
+				var curr_robot_pos    = resp.robot_pos;
+
+				//console.log( robot_pos['x'][0], curr_robot_pos[0] )
+				//console.log( robot_pos['y'][0], curr_robot_pos[1] )
+
+				var update_map = false;
+				if ( robot_pos['x'][0] != curr_robot_pos[0] && robot_pos['y'][0] != curr_robot_pos[1] ) {
+					// console.log('updated here1')
+					robot_pos['x'][0] = curr_robot_pos[0];
+					robot_pos['y'][0] = curr_robot_pos[1];
+					robot_pos['z'][0] = 1;
+
+					update_map = true;
+				}
+
+				if ( obstacle_pos.length > 0 ) {
+					var obstacles_synced = new_obstacle_synced( obstacle_pos );
+					if( !obstacles_synced ) {
+						console.log('updated here2');
+
+						var last_index = obstacle_pos[ obstacle_pos.length - 1 ];
+						new_obstacles['x'].push( last_index[0] );
+						new_obstacles['y'].push( last_index[1] );
+						new_obstacles['z'].push( 1 );
+
+						update_map = true;
+					}
+				}
+
+				console.log( 'update_map', update_map );
+
+				// update map
+				if ( update_map ) {
+					Plotly.newPlot( "path_map", data2, layout2 );
+					plot.removeEventListener('plotly_click', on_node_click );
+					plot.on('plotly_click', on_node_click );
+
+					// stop the timer
+					clearInterval( map_timer );
+
+					// set new start position and create new path
+					// clear current motion plan
+					$('.motion_plan_wrapper').html('');
+
+					// clear current data
+					goals = {'x': [],'y': [],'z': []}
+					solution = {'x': [],'y': [],'z': []}
+
+					// end
+					
+					// set new robot position
+					var data = {
+						'startx': curr_robot_pos[0],
+						'starty': curr_robot_pos[1],
+						'endx'  : global_end_goal[0],
+						'endy'  : global_end_goal[1],
+						'map_id': global_map_id,
+						'reset_obstacles': 0,
+					}
+
+					// set robot goals and plan the new motion
+					set_robot_goals( global_map_id, data );
+				}
+			} 
+		});
 	}
 
 	// render motion plan
@@ -272,26 +408,13 @@ function getReq( url, data, callback ) {
 		}
 	}
 
-	// submit start and goal point
-	$(document).on('click', '[data-action]', function() {
-		if (goals == undefined) {
-			return;
-		}
-
-		var map_id = $(this).data('map-id');
-
-		var data = {
-			'startx': goals['x'][0],
-			'starty': goals['y'][0],
-			'endx'  : goals['x'][1],
-			'endy'  : goals['y'][1],
-			'map_id': map_id,
-		}
-
+	// set robot position
+	function set_robot_goals( map_id, data ) {
 		postReq("/set_robot_goals", data, function(resp) {
 			if( resp.success ) {
 				var path = resp.path;
 				if( path.length > 0 ) {
+					global_map_id = map_id;
 					path.forEach( function( point, index ) {
 						solution['x'].push( point[0] );
 						solution['y'].push( point[1] );
@@ -307,10 +430,34 @@ function getReq( url, data, callback ) {
 
 					// render motion plan
 					render_motion_plan( resp.motion );
+
+					map_timer = setInterval( get_latest_status, 5000 );
 				}
 			} else {
 				console.error( resp );
 			}
 		});
+	}
+
+	// submit start and goal point
+	$(document).on('click', '[data-action]', function() {
+		if (goals == undefined) {
+			return;
+		}
+
+		var map_id = $(this).data('map-id');
+		global_end_goal   = [ goals['x'][1], goals['y'][1] ];
+
+		var data = {
+			'startx': goals['x'][0],
+			'starty': goals['y'][0],
+			'endx'  : goals['x'][1],
+			'endy'  : goals['y'][1],
+			'map_id': map_id,
+			'reset_obstacles': 1,
+		}
+
+		// set robot goals and plan the motion
+		set_robot_goals( map_id, data );
 	});
 })(jQuery);
