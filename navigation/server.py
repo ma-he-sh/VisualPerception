@@ -191,6 +191,7 @@ def set_robot_goals():
     # reset obstacle postions
     if clearObstacles:
         db.reset_map_positions( file_uuid )
+        db.reset_map_obstacles( file_uuid )
     else:
         additional_obstacles = db.get_obstacles( file_uuid )
 

@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 from datetime import datetime
 
 class DB():
@@ -73,7 +74,13 @@ class DB():
 
     def reset_map_positions(self, map_id):
         conn = self.get_db_connection()
-        conn.execute('DELETE FROM positions WHERE map_id="'+map_id+'"')
+        conn.execute('DELETE FROM positions WHERE map_id="'+map_id+'" AND meta_key="_position"')
+        conn.commit()
+        conn.close()
+
+    def reset_map_obstacles(self, map_id):
+        conn = self.get_db_connection()
+        conn.execute('DELETE FROM positions WHERE map_id="'+map_id+'" AND meta_key LIKE "_obstacle_%"')
         conn.commit()
         conn.close()
 
@@ -85,20 +92,23 @@ class DB():
         conn.close()
 
     def set_obstacles(self, map_id, obstacle_pos ):
+        obstacle_uuid = str( uuid.uuid4() )
+
         conn = self.get_db_connection()
         c = conn.cursor()
-        c.execute("INSERT INTO positions( map_id, meta_key, meta_value ) VALUES ( ?, ?, ? )", ( map_id, '_obstacle', str(obstacle_pos) ))
+        c.execute("INSERT INTO positions( map_id, meta_key, meta_value ) VALUES ( ?, ?, ? )", ( map_id, '_obstacle_' + obstacle_uuid , str(obstacle_pos) ))
         conn.commit()
         conn.close()
 
     def get_obstacles(self, map_id):
         obstacles = []
         conn = self.get_db_connection()
-        rows = conn.execute( 'SELECT * FROM positions WHERE meta_key="_obstacle" AND map_id="'+map_id+'"').fetchall()
+        rows = conn.execute( 'SELECT * FROM positions WHERE meta_key LIKE "_obstacle_%" AND map_id="'+map_id+'"').fetchall()
         for obs in rows:
             pos = eval( obs['meta_value'] )
             if pos:
                 obstacles.append( pos )
+            print(pos)
         return obstacles
 
     def get_robot_position(self, map_id):
