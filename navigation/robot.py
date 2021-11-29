@@ -11,6 +11,11 @@ import socket
 from modules.camera import Camera, CameraThread, CameraTimeout, FullFrame, SrcAvailability, SrcNotFound
 from config import DEV_MODE
 
+# gives a list of availble cameras
+src = SrcAvailability()
+deviceList = src.getDeviceList()
+print( deviceList )
+
 class RobotHandler():
     def __init__(self, robot_config={}, camera_config={}):
         self.robot_config = robot_config
