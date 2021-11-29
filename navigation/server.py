@@ -195,7 +195,7 @@ def set_robot_goals():
     else:
         additional_obstacles = db.get_obstacles( file_uuid )
 
-    print(additional_obstacles)
+    #print(additional_obstacles)
 
     # get the grid map and obstacles
     processMap = ProcessMap( entry, additional_obs=additional_obstacles )

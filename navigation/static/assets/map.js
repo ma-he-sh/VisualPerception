@@ -336,15 +336,14 @@ function getReq( url, data, callback ) {
 					var obstacles_synced = new_obstacle_synced( obstacle_pos );
 					if( !obstacles_synced ) {
 						console.log('updated here2');
+						new_obstacles = {'x':[],'y':[],'z':[]}
 
-						var last_index = obstacle_pos[ obstacle_pos.length - 1 ];
-						if( last_index ) {
-							new_obstacles['x'].push( last_index[0] );
-							new_obstacles['y'].push( last_index[1] );
+						obstacle_pos.forEach(function(obs, index) {
+							new_obstacles['x'].push( obs[0] );
+							new_obstacles['y'].push( obs[1] );
 							new_obstacles['z'].push( 1 );
-
-							update_map = true;
-						}
+						});
+						update_map = true;
 					}
 				}
 
@@ -362,8 +361,6 @@ function getReq( url, data, callback ) {
 					// set new start position and create new path
 					// clear current motion plan
 					$('.motion_plan_wrapper').html('');
-					// clear current data
-					Plotly.deleteTraces("path_map", 3); // 3rd index is the solution path
 					// end
 
 					// clean solutions
