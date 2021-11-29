@@ -2,9 +2,8 @@
 name: navigator
 
 dependencies:
-    - python=3.9
-    - pip>=19.0
-    - jupyter
+    - python=3.4
+    - pip
     - tensorflow
     - scikit-learn
     - scipy
@@ -21,6 +20,7 @@ dependencies:
     - opencv
     - pip:
         - redis
+        - PriorityQueue
         - bayesian-optimization
         - gym
         - kaggle

@@ -22,7 +22,7 @@ class Algorithm():
         self.g_scores = { Node:float("inf") for xi in self.map for Node in xi }
         self.g_scores[ self.start ] = 0
 
-    def exec(self):
+    def exec_code(self):
         while not self.queue.empty():
 
             # get the current node

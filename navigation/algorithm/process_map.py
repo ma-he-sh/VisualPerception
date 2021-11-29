@@ -114,7 +114,7 @@ class ProcessMap():
 
         algo = Algorithm( map, start_node, goal_node, self.resolution )
         algo.init()
-        algo.exec()
+        path_found = algo.exec_code()
         self.proposed_path = algo.get_generated_path()
         self.path_available= True
         return self.proposed_path
