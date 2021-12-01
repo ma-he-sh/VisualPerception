@@ -12,9 +12,9 @@ from modules.camera import Camera, CameraThread, CameraTimeout, FullFrame, SrcAv
 from config import DEV_MODE
 
 # gives a list of availble cameras
-src = SrcAvailability()
-deviceList = src.getDeviceList()
-print( deviceList )
+#src = SrcAvailability()
+#deviceList = src.getDeviceList()
+#print( deviceList )
 
 class RobotHandler():
     def __init__(self, robot_config={}, camera_config={}):
@@ -72,7 +72,7 @@ class RobotHandler():
         finally:
             self.cam1.stop()
             self.cam2.stop()
-            self.bot._io_cleanup()
+            #self.bot._io_cleanup()
 
 if __name__ == '__main__':
     robot_config = {

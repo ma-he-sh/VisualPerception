@@ -7,6 +7,11 @@ from sklearn.preprocessing import normalize
 from modules.camera import Camera, SrcAvailability
 from config import camera_config, STEREO_VISION, CAMERA_CONFIGS_STEREO_MAP
 
+# gives a list of availble cameras
+src = SrcAvailability()
+deviceList = src.getDeviceList()
+print( deviceList )
+
 # creating rectified image for camera views
 cvFile = cv2.FileStorage( CAMERA_CONFIGS_STEREO_MAP, cv2.FILE_STORAGE_READ )
 ltStereoMapX = cvFile.getNode("LTStereoMapX").mat()
@@ -77,7 +82,7 @@ try:
                 frame = stream.stabalized( image )
                 frame = stream.resize( frame )
                 cv2.normalize( frame, frame, 0, 255, cv2.NORM_MINMAX )
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 full_frame.append( frame )
 
         if len( full_frame ) > 0:
