@@ -8,6 +8,7 @@ from imutils.video import VideoStream
 import imutils
 import socket
 
+from motion.motion import Motion
 from modules.camera import Camera, CameraThread, CameraTimeout, FullFrame, SrcAvailability, SrcNotFound
 from config import DEV_MODE
 
@@ -74,38 +75,61 @@ class RobotHandler():
             self.cam2.stop()
             self.bot._io_cleanup()
 
+#if __name__ == '__main__':
+#    robot_config = {
+#        'dev_mode' : DEV_MODE
+#    }
+#    robotHandler = RobotHandler(robot_config, camera_config)
+#    robotHandler.initialize()
+
+
+
+
+
+
+
 if __name__ == '__main__':
-    robot_config = {
-        'dev_mode' : DEV_MODE
-    }
-    robotHandler = RobotHandler(robot_config, camera_config)
-    robotHandler.initialize()
+     #robotHandler = RobotHandler({}, camera_config)
+     #robotHandler.initialize()
 
 
 
 
 
+     bot = Motion()
+     try:
+         bot.setup()
 
 
-# if __name__ == '__main__':
-#     #robotHandler = RobotHandler({}, camera_config)
-#     #robotHandler.initialize()
-
-
-
-
-
-#     bot = motion.Motion()
-#     try:
-#         bot.setup()
-
-
-#         speed = 60
+         speed = 100
         
-#         #bot._motorLeft(1, 0, speed )
-#         #bot._motorRight(1, 0, speed )
-#         #time.sleep( 0.65 )
+         #bot._motorLeft(1, 1, speed )
+         #bot._motorRight(1, 1, speed )
+         #time.sleep( 2 )
+        
+         # pos 600, 600, dest 880, 600
+         bot.turn45Right() 
+         bot.driveRobot( 80 )
+         bot.turn45Left()
+         bot.driveRobot( 20 )
+         bot.turn45Left()
+         bot.driveRobot( 50 )
 
+         """
+         bot.turn45Right()
+         bot.driveRobot( 80 )
+         bot.turn45Left()
+         bot.driveRobot( 10 )
+         #----
+         bot.stop()
+         time.sleep(2)
+         bot.turn45Left()
+         bot.driveRobot( 23 )
+         bot.turn45Right()
+         bot.driveRobot( 20 )
+         bot.turn45Left()
+         bot.driveRobot( 23 )
+         """
 
 #         #bot.turn90Left()
 #         #bot.turn45Left()
@@ -128,10 +152,10 @@ if __name__ == '__main__':
 #         #bot.move( speed, 'forward', 'right', 90 )
 #         #time.sleep(20)
 
-#     except KeyboardInterrupt:
-#         print('exiting');
-#     finally:
-#         bot._io_cleanup()
+     except KeyboardInterrupt:
+         print('exiting');
+     finally:
+         bot._io_cleanup()
 
 #     # #camDevices = SrcAvailability()
 #     # #print( camDevices.getDeviceList() )
