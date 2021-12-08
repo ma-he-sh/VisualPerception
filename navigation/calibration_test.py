@@ -60,9 +60,8 @@ def mouse_listener(e, pixel_x, pixel_y, flags, param ):
             for v in range (-1,2):
                 avg_disparity += disp[pixel_y+u,pixel_x+v]
         avg_disparity=avg_disparity/9
-        Distance= -593.97*avg_disparity**(3) + 1506.8*avg_disparity**(2) - 1373.1*avg_disparity + 522.06
-        Distance= np.around(Distance*0.01,decimals=2)
-        print('Distance: '+ str(Distance)+' m')
+        Distance=-0.0153*avg_disparity + 1.03
+        Distance= np.around(Distance,decimals=2)
         print('Measure at '+str(Distance)+' cm, the dispasrity is ' + str(avg_disparity))
 
 leftCam = Camera( 'left', camera_config['left_cam_src'], camera_config['left_cam_config'] )

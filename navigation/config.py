@@ -26,6 +26,7 @@ TIME_FOR_REV = float( ENV['TIME_FOR_REV'] )
 TIME_FOR_90  = float( ENV['TIME_FOR_90'] )
 TIME_FOR_45  = float( ENV['TIME_FOR_45'] )
 TIME_FOR_180 = float( ENV['TIME_FOR_180'] )
+TIME_FOR_135 = float( ENV['TIME_FOR_135'] )
 
 DEV_MODE = int( ENV['DEV_MODE'] )
 

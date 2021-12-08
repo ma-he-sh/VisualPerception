@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
+from werkzeug.datastructures import FileMultiDict
 from numpy import add
 from werkzeug.utils import secure_filename
 import os
@@ -201,6 +202,16 @@ def set_robot_goals():
     processMap = ProcessMap( entry, additional_obs=additional_obstacles )
     plannedPath= processMap.get_path( start_node, goal_node )
     planned_motion=processMap.get_planned_motion()
+
+    #print(planned_motion)
+
+    # save command to file
+    command_file = file_uuid + ".txt"
+    f = open(command_file, "w")
+    for read in planned_motion:
+        cmd = str(read['from'][0]) + "," + str(read['from'][1]) + "," + str(read['distance']) + "," + read['turn'] + "," + str(read['angle']) + "\n"
+        f.write( cmd )
+    f.close()
 
     return jsonify(
             success=True,

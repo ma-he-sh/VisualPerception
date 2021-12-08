@@ -286,6 +286,22 @@ class Motion():
         speed = ROBOT_SPEED
         self.turnRight( speed, TIME_FOR_90 )
 
+    def turn135Left(self):
+        if self.dev_mode:
+            print('--turn 135 left--')
+            return
+
+        speed = ROBOT_SPEED
+        self.turnLeft( speed, TIME_FOR_135 )
+   
+    def turn135Right(self):
+        if self.dev_mode:
+            print('--turn 135 right--')
+            return
+
+        speed = ROBOT_SPEED
+        self.turnRight( speed, TIME_FOR_135 )
+
     def turn45Right(self):
         if self.dev_mode:
             print('--turn 45 right--')
